@@ -1,40 +1,47 @@
-import React, { useState } from 'react';
-import { InvoiceItem } from '../types';
-import { calculateItemAmount } from '../utils/invoiceUtils';
-import './ItemsTable.css';
+import React from "react";
+import { InvoiceItem } from "../types";
+import { calculateItemAmount } from "../utils/invoiceUtils";
+import "./ItemsTable.css";
 
 interface ItemsTableProps {
   items: InvoiceItem[];
   onItemsChange: (items: InvoiceItem[]) => void;
 }
 
-export const ItemsTable: React.FC<ItemsTableProps> = ({ items, onItemsChange }) => {
+export const ItemsTable: React.FC<ItemsTableProps> = ({
+  items,
+  onItemsChange,
+}) => {
   const addRow = () => {
     const newItem: InvoiceItem = {
       id: Date.now().toString(),
-      description: 'Product/Service Description',
-      hsn: 'HSN001',
-      unit: 'Pcs',
+      description: "Product/Service Description",
+      hsn: "HSN001",
+      unit: "Pcs",
       quantity: 1,
       rate: 0,
-      amount: 0
+      amount: 0,
     };
     onItemsChange([...items, newItem]);
   };
 
   const removeRow = (id: string) => {
     if (items.length > 1) {
-      onItemsChange(items.filter(item => item.id !== id));
+      onItemsChange(items.filter((item) => item.id !== id));
     } else {
-      alert('At least one item is required!');
+      alert("At least one item is required!");
     }
   };
 
-  const updateItem = (id: string, field: keyof InvoiceItem, value: string | number) => {
-    const updatedItems = items.map(item => {
+  const updateItem = (
+    id: string,
+    field: keyof InvoiceItem,
+    value: string | number
+  ) => {
+    const updatedItems = items.map((item) => {
       if (item.id === id) {
         const updated = { ...item, [field]: value };
-        if (field === 'quantity' || field === 'rate') {
+        if (field === "quantity" || field === "rate") {
           updated.amount = calculateItemAmount(
             Number(updated.quantity),
             Number(updated.rate)
@@ -70,28 +77,36 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({ items, onItemsChange }) 
                 <input
                   type="text"
                   value={item.description}
-                  onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                  onChange={(e) =>
+                    updateItem(item.id, "description", e.target.value)
+                  }
                 />
               </td>
               <td className="col-hsn">
                 <input
                   type="text"
                   value={item.hsn}
-                  onChange={(e) => updateItem(item.id, 'hsn', e.target.value)}
+                  onChange={(e) => updateItem(item.id, "hsn", e.target.value)}
                 />
               </td>
               <td className="col-unit">
                 <input
                   type="text"
                   value={item.unit}
-                  onChange={(e) => updateItem(item.id, 'unit', e.target.value)}
+                  onChange={(e) => updateItem(item.id, "unit", e.target.value)}
                 />
               </td>
               <td className="col-quantity">
                 <input
                   type="number"
                   value={item.quantity}
-                  onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                  onChange={(e) =>
+                    updateItem(
+                      item.id,
+                      "quantity",
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
                   min="0"
                   step="0.01"
                 />
@@ -100,15 +115,17 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({ items, onItemsChange }) 
                 <input
                   type="number"
                   value={item.rate}
-                  onChange={(e) => updateItem(item.id, 'rate', parseFloat(e.target.value) || 0)}
+                  onChange={(e) =>
+                    updateItem(item.id, "rate", parseFloat(e.target.value) || 0)
+                  }
                   min="0"
                   step="0.01"
                 />
               </td>
               <td className="col-amount">{item.amount.toFixed(2)}</td>
               <td className="col-action">
-                <button 
-                  className="remove-btn" 
+                <button
+                  className="remove-btn"
                   onClick={() => removeRow(item.id)}
                   type="button"
                 >
