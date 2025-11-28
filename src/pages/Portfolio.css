@@ -1,0 +1,418 @@
+.portfolio-page {
+  min-height: 100vh;
+  background: #0a0a0a;
+  color: #e0e0e0;
+  overflow-x: hidden;
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* Stealth Background */
+.portfolio-page .bg-layer {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(10, 20, 30, 0.8),
+    #0a0a0a
+  );
+}
+
+.portfolio-page .grid-overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.3;
+  z-index: 0;
+}
+
+.portfolio-page .ambient-glow {
+  position: fixed;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(
+    circle,
+    rgba(230, 57, 70, 0.15) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+/* Hero */
+.portfolio-page .hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding: 40px;
+}
+
+.portfolio-page .hero-content {
+  text-align: center;
+  position: relative;
+}
+
+.portfolio-page .logo-mark {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 40px;
+  position: relative;
+}
+
+.portfolio-page .logo-svg {
+  width: 100%;
+  height: 100%;
+  stroke: #e63946;
+  stroke-width: 2;
+  fill: none;
+  filter: drop-shadow(0 0 20px rgba(230, 57, 70, 0.5));
+  animation: logo-pulse 4s ease-in-out infinite;
+}
+
+@keyframes logo-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px rgba(230, 57, 70, 0.5));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 40px rgba(230, 57, 70, 0.8));
+  }
+}
+
+.portfolio-page .hero-title {
+  font-size: clamp(70px, 15vw, 200px);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 0.9;
+  color: #e0e0e0;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.portfolio-page .hero-title::after {
+  content: "STUDIOS";
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.5em;
+  color: rgba(230, 57, 70, 0.6);
+}
+
+.portfolio-page .hero-tagline {
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 400;
+  color: rgba(224, 224, 224, 0.5);
+  margin-top: 60px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Capabilities */
+.portfolio-page .capabilities {
+  min-height: 100vh;
+  padding: 120px 5%;
+  position: relative;
+  z-index: 1;
+}
+
+.portfolio-page .section-header {
+  margin-bottom: 100px;
+}
+
+.portfolio-page .section-number {
+  font-size: 14px;
+  color: rgba(230, 57, 70, 0.6);
+  letter-spacing: 0.3em;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.portfolio-page .section-title {
+  font-size: clamp(40px, 8vw, 90px);
+  font-weight: 800;
+  color: #e0e0e0;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.portfolio-page .capability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1px;
+  background: rgba(230, 57, 70, 0.1);
+  border: 1px solid rgba(230, 57, 70, 0.2);
+}
+
+.portfolio-page .capability-cell {
+  background: rgba(10, 10, 10, 0.9);
+  padding: 60px 40px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.portfolio-page .capability-cell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(230, 57, 70, 0.1),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.portfolio-page .capability-cell:hover::before {
+  left: 100%;
+}
+
+.portfolio-page .capability-cell:hover {
+  background: rgba(15, 20, 25, 1);
+  border-color: rgba(230, 57, 70, 0.4);
+}
+
+.portfolio-page .capability-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 30px;
+  opacity: 0.9;
+  transition: transform 0.4s ease;
+  display: inline-block;
+  stroke: #e63946;
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.portfolio-page .capability-cell:hover .capability-icon {
+  transform: scale(1.1);
+}
+
+.portfolio-page .capability-name {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #e0e0e0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.portfolio-page .capability-desc {
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(224, 224, 224, 0.6);
+}
+
+/* Arsenal */
+.portfolio-page .arsenal {
+  min-height: 100vh;
+  padding: 120px 5%;
+  position: relative;
+  z-index: 1;
+}
+
+.portfolio-page .arsenal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 60px;
+}
+
+.portfolio-page .arsenal-item {
+  padding: 40px 0;
+  border-bottom: 1px solid rgba(230, 57, 70, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.portfolio-page .arsenal-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #e63946, transparent);
+  transition: width 0.4s ease;
+}
+
+.portfolio-page .arsenal-item:hover::before {
+  width: 60px;
+}
+
+.portfolio-page .arsenal-item:hover {
+  padding-left: 80px;
+  color: #e63946;
+}
+
+.portfolio-page .arsenal-name {
+  font-size: clamp(30px, 5vw, 70px);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.portfolio-page .arsenal-type {
+  font-size: 14px;
+  color: rgba(224, 224, 224, 0.5);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Contact */
+.portfolio-page .contact {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 5%;
+  position: relative;
+  z-index: 1;
+}
+
+.portfolio-page .contact-content {
+  text-align: center;
+  max-width: 900px;
+}
+
+.portfolio-page .contact-title {
+  font-size: clamp(50px, 10vw, 140px);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 40px;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.portfolio-page .contact-subtitle {
+  font-size: clamp(18px, 3vw, 28px);
+  color: rgba(224, 224, 224, 0.6);
+  margin-bottom: 60px;
+  line-height: 1.6;
+}
+
+.portfolio-page .contact-email {
+  display: inline-block;
+  font-size: clamp(24px, 4vw, 50px);
+  font-weight: 700;
+  color: #e63946;
+  text-decoration: none;
+  position: relative;
+  transition: all 0.3s ease;
+  letter-spacing: 0.02em;
+}
+
+.portfolio-page .contact-email::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #e63946;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s ease;
+}
+
+.portfolio-page .contact-email:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.portfolio-page .contact-email:hover {
+  color: #ff6b6b;
+  letter-spacing: 0.05em;
+}
+
+/* Status Bar */
+.portfolio-page .status-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(230, 57, 70, 0.2);
+  z-index: 100;
+}
+
+.portfolio-page .status-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #e63946, #ff6b6b);
+  width: 0%;
+  transition: width 0.1s ease;
+  box-shadow: 0 0 20px rgba(230, 57, 70, 0.8);
+}
+
+/* Footer */
+.portfolio-page footer {
+  padding: 60px 5%;
+  border-top: 1px solid rgba(230, 57, 70, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.portfolio-page .footer-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.portfolio-page .footer-text {
+  font-size: 12px;
+  color: rgba(224, 224, 224, 0.4);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.portfolio-page .footer-year {
+  font-size: 12px;
+  color: rgba(230, 57, 70, 0.6);
+  letter-spacing: 0.2em;
+}
+
+@media (max-width: 768px) {
+  .portfolio-page .capability-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-page .arsenal-item:hover {
+    padding-left: 40px;
+  }
+
+  .portfolio-page .footer-grid {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+}

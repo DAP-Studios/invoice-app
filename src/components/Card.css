@@ -1,0 +1,33 @@
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.stat-card {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  border-left: 4px solid #1a1a1a;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.stat-card h3 {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.stat-card .value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #1a1a1a;
+}
+
+.stat-card .subtext {
+  font-size: 12px;
+  color: #999;
+  margin-top: 5px;
+}
