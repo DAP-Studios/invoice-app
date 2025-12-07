@@ -307,6 +307,7 @@
 
 .portfolio-page .contact-title {
   font-size: clamp(50px, 10vw, 140px);
+  color: #ffd5d5;
   font-weight: 900;
   line-height: 1.1;
   margin-bottom: 40px;
@@ -316,7 +317,7 @@
 
 .portfolio-page .contact-subtitle {
   font-size: clamp(18px, 3vw, 28px);
-  color: rgba(59, 24, 24, 0.852);
+  color: rgba(132, 54, 54, 0.852);
   margin-bottom: 60px;
   line-height: 1.6;
 }
