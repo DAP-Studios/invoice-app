@@ -223,9 +223,7 @@ export const Portfolio: React.FC = () => {
 
       <footer>
         <div className="footer-grid">
-          <p className="footer-text">
-            DAP Studios · Freelance Development Collective
-          </p>
+          <p className="footer-text">DAP Studios</p>
           <p className="footer-year">EST. 2025</p>
         </div>
       </footer>
