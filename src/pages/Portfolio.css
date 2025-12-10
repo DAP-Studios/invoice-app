@@ -67,10 +67,121 @@
 }
 
 .portfolio-page .logo-mark {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 40px;
-  position: relative;
+  width: 400px;
+  height: 400px;
+  margin: 0 auto; /* This centers the box horizontally */
+  margin-bottom: 20px; /* Spacing before the "DAP STUDIOS" text */
+  display: flex; /* Ensures content aligns perfectly inside */
+  justify-content: center;
+}
+
+/* 2. Visuals: Gray Tint and Glow */
+/* 1. The Container (Optional Tweaks) */
+.logo-mark {
+  width: 300px;
+  height: 300px;
+  margin: 0 auto 20px auto;
+  display: flex;
+  justify-content: center;
+  perspective: 1000px; /* Adds depth for the 3D feel */
+}
+
+/* 2. The Image - Combining Both Effects */
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+
+  /* Base Cyber Style */
+  filter: grayscale(100%) brightness(60%) contrast(1.2);
+
+  /* --- THE CHAOS ENGINE --- */
+  /* We stack 3 different movement animations + 1 glitch animation */
+  /* They all have different times (prime numbers) so they never sync up */
+  animation: drift-y 7s ease-in-out infinite, drift-x 5s ease-in-out infinite,
+    drift-rotate 11s ease-in-out infinite,
+    chromatic-glitch 3s infinite alternate-reverse; /* The Cyber Glitch from before */
+
+  transition: all 0.5s ease;
+}
+
+/* Hover: The system "locks on" and stabilizes */
+.logo-image:hover {
+  filter: grayscale(0%) brightness(100%)
+    drop-shadow(0 0 30px rgba(230, 57, 70, 0.8));
+  transform: translate(0, 0) rotate(0) scale(1.1) !important; /* Force reset position */
+  animation-play-state: paused; /* Freeze the chaos */
+}
+
+/* --- 1. Vertical Float (Up/Down) --- */
+@keyframes drift-y {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  25% {
+    transform: translateY(-15px);
+  }
+  75% {
+    transform: translateY(15px);
+  }
+}
+
+/* --- 2. Horizontal Drift (Left/Right) --- */
+@keyframes drift-x {
+  0%,
+  100% {
+    transform: translateX(0px);
+  }
+  30% {
+    transform: translateX(10px);
+  }
+  80% {
+    transform: translateX(-10px);
+  }
+}
+
+/* --- 3. Slow Rotation (Tumble) --- */
+@keyframes drift-rotate {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  33% {
+    transform: rotate(3deg);
+  }
+  66% {
+    transform: rotate(-3deg);
+  }
+}
+
+/* --- 4. The Glitch (Color Split) --- */
+@keyframes chromatic-glitch {
+  0% {
+    filter: grayscale(100%) brightness(60%)
+      drop-shadow(3px 3px 0px rgba(230, 57, 70, 0.5))
+      drop-shadow(-3px -3px 0px rgba(0, 243, 255, 0.5));
+  }
+  25% {
+    filter: grayscale(100%) brightness(60%)
+      drop-shadow(-3px 3px 0px rgba(230, 57, 70, 0.5))
+      drop-shadow(3px -3px 0px rgba(0, 243, 255, 0.5));
+  }
+  50% {
+    filter: grayscale(100%) brightness(50%)
+      drop-shadow(0px 0px 5px rgba(230, 57, 70, 0.8))
+      drop-shadow(0px 0px 10px rgba(0, 243, 255, 0.8));
+  }
+  75% {
+    filter: grayscale(100%) brightness(70%)
+      drop-shadow(4px -2px 0px rgba(230, 57, 70, 0.4))
+      drop-shadow(-4px 2px 0px rgba(0, 243, 255, 0.4));
+  }
+  100% {
+    filter: grayscale(100%) brightness(60%)
+      drop-shadow(2px 2px 0px rgba(230, 57, 70, 0.5))
+      drop-shadow(-2px -2px 0px rgba(0, 243, 255, 0.5));
+  }
 }
 
 .portfolio-page .logo-svg {
@@ -95,34 +206,43 @@
   }
 }
 
+/* Container for both words */
 .portfolio-page .hero-title {
-  font-size: clamp(70px, 15vw, 200px);
-  font-weight: 900;
+  display: flex; /* Forces them onto one line */
+  align-items: baseline; /* Aligns text by their "feet" (baseline) */
+  justify-content: center; /* Centers the whole block */
+  gap: 20px; /* Space between DAP and STUDIOS */
+
+  /* Styles for "DAP" */
+  font-size: clamp(40px, 10vw, 120px);
+  font-weight: 800;
   letter-spacing: 0.02em;
-  line-height: 0.9;
   color: #e0e0e0;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  position: relative;
+  margin: 0;
+  line-height: 1;
 }
 
-.portfolio-page .hero-title::after {
-  content: "STUDIOS";
-  position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 24px;
+/* Styles specifically for "STUDIOS" */
+.portfolio-page .hero-subtitle {
+  font-size: 80px;
   font-weight: 600;
-  letter-spacing: 0.5em;
-  color: rgba(230, 57, 70, 0.6);
+  letter-spacing: 0.1em;
+  color: #e63946;
+}
+/* Mobile Tweak: Ensure it fits on small screens */
+@media (max-width: 200px) {
+  .portfolio-page .hero-title {
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
 }
 
 .portfolio-page .hero-tagline {
   font-size: clamp(16px, 2vw, 22px);
   font-weight: 400;
   color: rgba(224, 224, 224, 0.5);
-  margin-top: 60px;
+  margin-top: 40px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
