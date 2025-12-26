@@ -212,7 +212,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       // Create new demo user (storing password for demo only - don't do this in production!)
       const userData = {
         username: username,
-        email: `${username}@company.com`,
+        email: `${username}@daptech.com`,
         uid: "demo-user-" + Date.now(),
         password: password, // Only for demo mode
       };

@@ -1,0 +1,56 @@
+.reports-page {
+  padding: var(--space-xl);
+  background: var(--color-surface-alt);
+  min-height: 100vh;
+}
+
+.reports-content {
+  display: flex;
+  gap: var(--space-xl);
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.report-card {
+  background: var(--aurix-card-gradient);
+  color: #fff;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-lg);
+  min-width: 280px;
+  max-width: 340px;
+  margin-bottom: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.report-card h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.report-card p {
+  font-size: 1rem;
+  margin-bottom: 16px;
+  opacity: 0.9;
+}
+
+.aurix-btn {
+  background: var(--aurix-btn-gradient);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-btn);
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(10, 77, 104, 0.08);
+  transition: background 0.2s;
+}
+
+.aurix-btn:hover {
+  background: linear-gradient(90deg, #0a4d68 0%, #088395 100%);
+}

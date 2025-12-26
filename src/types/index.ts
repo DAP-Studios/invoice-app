@@ -10,7 +10,7 @@ export interface InvoiceItem {
 
 export interface Invoice {
   id: number;
-  type: 'INVOICE' | 'QUOTATION';
+  type: "INVOICE" | "QUOTATION" | "PURCHASE ORDER" | "PERFORMA INVOICE";
   invoiceNo: string;
   date: string;
   dueDate: string;
@@ -29,7 +29,7 @@ export interface Invoice {
   totalGST: number;
   totalAmount: number;
   amountInWords?: string;
-  status: 'Paid' | 'Pending' | 'Draft';
+  status: "Paid" | "Pending" | "Draft";
   timestamp: string;
 }
 
@@ -48,9 +48,17 @@ export interface CompanySettings {
 
 export interface DashboardStats {
   totalInvoices: number;
+  totalQuotations: number;
+  totalPurchaseOrders: number;
   totalRevenue: number;
+  totalQuotationValue: number;
+  totalPurchaseOrderValue: number;
   pendingInvoices: number;
+  pendingQuotations: number;
+  pendingPurchaseOrders: number;
   thisMonthRevenue: number;
+  thisMonthQuotationValue: number;
+  thisMonthPurchaseOrderValue: number;
 }
 
 export interface Customer {

@@ -8,12 +8,12 @@ import "./Login.css";
 const isFirebaseConfigured = (): boolean => {
   return (
     import.meta.env.VITE_FIREBASE_API_KEY &&
-    import.meta.env.VITE_FIREBASE_API_KEY !== "your_api_key_here"
+    import.meta.env.VITE_FIREBASE_API_KEY !== "your-firebase-api-key-here"
   );
 };
 
 export const Login: React.FC = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,8 +26,8 @@ export const Login: React.FC = () => {
     e.preventDefault();
     setError("");
 
-    if (!username || !password) {
-      setError("Please enter both username and password");
+    if (!email || !password) {
+      setError("Please enter both email and password");
       return;
     }
 
@@ -44,7 +44,7 @@ export const Login: React.FC = () => {
 
       setLoading(true);
       try {
-        const result = await signup(username, password);
+        const result = await signup(email, password);
         if (result.success) {
           navigate("/app");
         } else {
@@ -59,11 +59,11 @@ export const Login: React.FC = () => {
       // Login
       setLoading(true);
       try {
-        const success = await login(username, password);
+        const success = await login(email, password);
         if (success) {
           navigate("/app");
         } else {
-          setError("Invalid username or password");
+          setError("Invalid email or password");
         }
       } catch (err) {
         setError("Login failed. Please try again.");
@@ -77,8 +77,10 @@ export const Login: React.FC = () => {
     <div className="login-page">
       <div className="login-container">
         <div className="login-header">
-          <h1>📊 Invoice Management</h1>
-          <p>{isSignup ? "Create your account" : "Sign in to your account"}</p>
+          <h1 className="aurix-page-title">Aurix</h1>
+          <p className="page-subtitle">
+            {isSignup ? "Create your account" : "Sign in to your account"}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -88,10 +90,10 @@ export const Login: React.FC = () => {
             <label htmlFor="username">Username</label>
             <input
               type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
               autoFocus
             />
           </div>

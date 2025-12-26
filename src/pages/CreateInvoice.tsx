@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useInvoices } from '../context/InvoiceContext';
-import { Button } from '../components/Button';
-import { ItemsTable } from '../components/ItemsTable';
-import { TotalsTable } from '../components/TotalsTable';
-import { Invoice, InvoiceItem } from '../types';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useInvoices } from "../context/InvoiceContext";
+import { Button } from "../components/Button";
+import { ItemsTable } from "../components/ItemsTable";
+import { TotalsTable } from "../components/TotalsTable";
+import { Invoice, InvoiceItem } from "../types";
 import {
   generateInvoiceNumber,
   calculateSubtotal,
@@ -13,45 +13,58 @@ import {
   getTodayDate,
   getDueDate,
   numberToWords,
-  formatCurrency
-} from '../utils/invoiceUtils';
-import { loadLogo } from '../utils/storage';
-import './CreateInvoice.css';
+  formatCurrency,
+} from "../utils/invoiceUtils";
+import { loadLogo } from "../utils/storage";
+import "./CreateInvoice.css";
 
 export const CreateInvoice: React.FC = () => {
   const navigate = useNavigate();
   const { invoices, settings, addInvoice } = useInvoices();
-  
-  const [docType, setDocType] = useState<'INVOICE' | 'QUOTATION'>('INVOICE');
-  const [customerName, setCustomerName] = useState('Customer Name');
-  const [customerAddress, setCustomerAddress] = useState('Customer Address');
-  const [customerContact, setCustomerContact] = useState('Person Name');
-  const [customerPhone, setCustomerPhone] = useState('+91 00000 00000');
-  const [customerEmail, setCustomerEmail] = useState('customer@email.com');
+
+  type DocType =
+    | "INVOICE"
+    | "QUOTATION"
+    | "PURCHASE ORDER"
+    | "PERFORMA INVOICE";
+  const [docType, setDocType] = useState<DocType>("INVOICE");
+  const [customerName, setCustomerName] = useState("Customer Name");
+  const [customerAddress, setCustomerAddress] = useState("Customer Address");
+  const [customerContact, setCustomerContact] = useState("Person Name");
+  const [customerPhone, setCustomerPhone] = useState("+91 00000 00000");
+  const [customerEmail, setCustomerEmail] = useState("customer@email.com");
   const [invoiceDate, setInvoiceDate] = useState(getTodayDate());
   const [dueDate, setDueDate] = useState(getDueDate());
-  const [poNumber, setPoNumber] = useState('');
-  
-  const [items, setItems] = useState<InvoiceItem[]>([{
-    id: '1',
-    description: 'Product/Service Description',
-    hsn: 'HSN001',
-    unit: 'Pcs',
-    quantity: 1,
-    rate: 1000,
-    amount: 1000
-  }]);
-  
+  const [poNumber, setPoNumber] = useState("");
+
+  const [items, setItems] = useState<InvoiceItem[]>([
+    {
+      id: "1",
+      description: "Product/Service Description",
+      hsn: "HSN001",
+      unit: "Pcs",
+      quantity: 1,
+      rate: 1000,
+      amount: 1000,
+    },
+  ]);
+
   const [cgstRate, setCgstRate] = useState(9);
   const [sgstRate, setSgstRate] = useState(9);
-  
+
   const subtotal = calculateSubtotal(items);
   const cgstAmount = calculateTax(subtotal, cgstRate);
   const sgstAmount = calculateTax(subtotal, sgstRate);
   const totalGST = cgstAmount + sgstAmount;
   const totalAmount = calculateGrandTotal(subtotal, cgstAmount, sgstAmount);
-  
-  const invoiceNumber = generateInvoiceNumber(invoices, docType);
+
+  // Map PURCHASE ORDER and PERFORMA INVOICE to 'INVOICE' for numbering
+  const invoiceNumber = generateInvoiceNumber(
+    invoices,
+    docType === "PURCHASE ORDER" || docType === "PERFORMA INVOICE"
+      ? "INVOICE"
+      : docType
+  );
   const [logo, setLogo] = useState<string | null>(null);
 
   useEffect(() => {
@@ -62,7 +75,11 @@ export const CreateInvoice: React.FC = () => {
   const handleSave = () => {
     const invoice: Invoice = {
       id: Date.now(),
-      type: docType,
+      // Cast as 'INVOICE' for PURCHASE ORDER and PERFORMA INVOICE to match Invoice type
+      type:
+        docType === "PURCHASE ORDER" || docType === "PERFORMA INVOICE"
+          ? "INVOICE"
+          : docType,
       invoiceNo: invoiceNumber,
       date: invoiceDate,
       dueDate: dueDate,
@@ -81,17 +98,21 @@ export const CreateInvoice: React.FC = () => {
       totalGST,
       totalAmount,
       amountInWords: numberToWords(Math.round(totalAmount)),
-      status: 'Pending',
-      timestamp: new Date().toISOString()
+      status: "Pending",
+      timestamp: new Date().toISOString(),
     };
-    
+
     addInvoice(invoice);
-    alert(`✅ ${docType} saved!\nNumber: ${invoiceNumber}\nTotal: ${formatCurrency(totalAmount)}`);
-    navigate('/invoices');
+    alert(
+      `✅ ${docType} saved!\nNumber: ${invoiceNumber}\nTotal: ${formatCurrency(
+        totalAmount
+      )}`
+    );
+    navigate("/invoices");
   };
 
   const handleClear = () => {
-    if (confirm('Clear form?')) {
+    if (confirm("Clear form?")) {
       window.location.reload();
     }
   };
@@ -100,29 +121,47 @@ export const CreateInvoice: React.FC = () => {
     window.print();
   };
 
-  const toggleDocType = () => {
-    setDocType(docType === 'INVOICE' ? 'QUOTATION' : 'INVOICE');
-  };
-
   return (
     <div className="create-invoice-page">
       <div className="action-buttons no-print">
-        <Button variant="secondary" onClick={() => navigate('/')}>
+        <Button variant="secondary" onClick={() => navigate("/")}>
           ← Back to Dashboard
         </Button>
-        <Button onClick={toggleDocType}>
-          Switch to {docType === 'INVOICE' ? 'Quotation' : 'Invoice'}
-        </Button>
+        <div style={{ display: "inline-block", margin: "0 8px" }}>
+          <label
+            htmlFor="docTypeSelect"
+            style={{ fontWeight: 500, marginRight: 6 }}
+          >
+            Document Type:
+          </label>
+          <select
+            id="docTypeSelect"
+            value={docType}
+            onChange={(e) => setDocType(e.target.value as DocType)}
+            className="editable-input"
+            style={{ padding: "6px 12px", borderRadius: 4 }}
+          >
+            <option value="INVOICE">Invoice</option>
+            <option value="QUOTATION">Quotation</option>
+            <option value="PURCHASE ORDER">Purchase Order</option>
+            <option value="PERFORMA INVOICE">Performa Invoice</option>
+          </select>
+        </div>
         <Button onClick={handleSave}>💾 Save {docType}</Button>
-        <Button variant="secondary" onClick={handleClear}>🗑️ Clear Form</Button>
-        <Button variant="secondary" onClick={handlePrint}>🖨️ Print (A4)</Button>
+        <Button variant="secondary" onClick={handleClear}>
+          🗑️ Clear Form
+        </Button>
+        <Button variant="secondary" onClick={handlePrint}>
+          🖨️ Print (A4)
+        </Button>
       </div>
 
       <div className="alert-box no-print">
-        <strong>🎯 Auto-Generated {docType} Number:</strong>{' '}
+        <strong>🎯 Auto-Generated {docType} Number:</strong>{" "}
         <span className="invoice-number-display">{invoiceNumber}</span>
-        <p style={{ fontSize: '12px', marginTop: '5px', color: '#666' }}>
-          Optimized for A4 paper (210mm × 297mm). Company details loaded from Settings.
+        <p style={{ fontSize: "12px", marginTop: "5px", color: "#666" }}>
+          Optimized for A4 paper (210mm × 297mm). Company details loaded from
+          Settings.
         </p>
       </div>
 
@@ -133,20 +172,28 @@ export const CreateInvoice: React.FC = () => {
               <img src={logo} alt="Company Logo" />
             ) : (
               <div className="logo-placeholder">
-                <strong>No<br/>Logo</strong>
+                <strong>
+                  No
+                  <br />
+                  Logo
+                </strong>
               </div>
             )}
           </div>
 
           <div className="company-info">
-            <h1>{settings?.companyName || 'YOUR COMPANY NAME'}</h1>
-            <p>{settings?.companyAddress || 'Set company details in Settings'}</p>
-            <p>
-              <strong>Phone:</strong> {settings?.companyPhone || '-'} |{' '}
-              <strong>Email:</strong> {settings?.companyEmail || '-'}
+            <h1 className="aurix-page-title">
+              {settings?.companyName || "YOUR COMPANY NAME"}
+            </h1>
+            <p className="page-subtitle">
+              {settings?.companyAddress || "Set company details in Settings"}
             </p>
             <p>
-              <strong>Website:</strong> {settings?.companyWebsite || '-'}
+              <strong>Phone:</strong> {settings?.companyPhone || "-"} |{" "}
+              <strong>Email:</strong> {settings?.companyEmail || "-"}
+            </p>
+            <p>
+              <strong>Website:</strong> {settings?.companyWebsite || "-"}
             </p>
           </div>
         </div>
@@ -158,7 +205,7 @@ export const CreateInvoice: React.FC = () => {
         <table className="info-table">
           <tbody>
             <tr>
-              <td style={{ width: '60%' }}>
+              <td style={{ width: "60%" }}>
                 <h3>Bill To / Ship To</h3>
                 <p>
                   <strong>
@@ -179,7 +226,7 @@ export const CreateInvoice: React.FC = () => {
                   />
                 </p>
                 <p>
-                  <strong>Contact:</strong>{' '}
+                  <strong>Contact:</strong>{" "}
                   <input
                     type="text"
                     value={customerContact}
@@ -188,7 +235,7 @@ export const CreateInvoice: React.FC = () => {
                   />
                 </p>
                 <p>
-                  <strong>Phone:</strong>{' '}
+                  <strong>Phone:</strong>{" "}
                   <input
                     type="text"
                     value={customerPhone}
@@ -197,7 +244,7 @@ export const CreateInvoice: React.FC = () => {
                   />
                 </p>
                 <p>
-                  <strong>Email:</strong>{' '}
+                  <strong>Email:</strong>{" "}
                   <input
                     type="text"
                     value={customerEmail}
@@ -206,13 +253,13 @@ export const CreateInvoice: React.FC = () => {
                   />
                 </p>
               </td>
-              <td style={{ width: '40%' }}>
+              <td style={{ width: "40%" }}>
                 <h3>{docType} Details</h3>
                 <p>
                   <strong>{docType} No:</strong> {invoiceNumber}
                 </p>
                 <p>
-                  <strong>Date:</strong>{' '}
+                  <strong>Date:</strong>{" "}
                   <input
                     type="text"
                     value={invoiceDate}
@@ -221,7 +268,7 @@ export const CreateInvoice: React.FC = () => {
                   />
                 </p>
                 <p>
-                  <strong>Due Date:</strong>{' '}
+                  <strong>Due Date:</strong>{" "}
                   <input
                     type="text"
                     value={dueDate}
@@ -230,7 +277,7 @@ export const CreateInvoice: React.FC = () => {
                   />
                 </p>
                 <p>
-                  <strong>PO Number:</strong>{' '}
+                  <strong>Purchase Order Number:</strong>{" "}
                   <input
                     type="text"
                     value={poNumber}
@@ -259,13 +306,15 @@ export const CreateInvoice: React.FC = () => {
         />
 
         <div className="amount-words">
-          <strong>Amount in Words:</strong> {numberToWords(Math.round(totalAmount))}
+          <strong>Amount in Words:</strong>{" "}
+          {numberToWords(Math.round(totalAmount))}
         </div>
 
         <div className="footer-section">
           <div className="bank-details">
-            <strong>BANK DETAILS:</strong> Bank: {settings?.bankName || '-'} | Acc:{' '}
-            {settings?.bankAccount || '-'} | IFSC: {settings?.bankIFSC || '-'}
+            <strong>BANK DETAILS:</strong> Bank: {settings?.bankName || "-"} |
+            Acc: {settings?.bankAccount || "-"} | IFSC:{" "}
+            {settings?.bankIFSC || "-"}
           </div>
 
           <div className="terms">
@@ -284,10 +333,12 @@ export const CreateInvoice: React.FC = () => {
 
           <div className="signature">
             <p>
-              <strong>For {settings?.companyName || 'YOUR COMPANY NAME'}</strong>
+              <strong>
+                For {settings?.companyName || "YOUR COMPANY NAME"}
+              </strong>
             </p>
             <div className="signature-line"></div>
-            <p style={{ marginTop: '3px' }}>Authorized Signatory</p>
+            <p style={{ marginTop: "3px" }}>Authorized Signatory</p>
           </div>
         </div>
       </div>

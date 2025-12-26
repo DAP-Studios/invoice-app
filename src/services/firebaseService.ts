@@ -169,3 +169,20 @@ export const loadLogoFromFirebase = async (): Promise<string | null> => {
     return null;
   }
 };
+
+// ==================== CUSTOMERS ====================
+
+export const getCustomers = async (): Promise<any[]> => {
+  try {
+    const q = query(collection(db, "customers"), orderBy("name", "asc"));
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error("Error fetching customers:", error);
+    return [];
+  }
+};

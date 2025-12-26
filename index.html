@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/dap.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Invoice & Quotation Management System</title>
+    <title>Business Control Center</title>
+    <!-- Added Payments tab functionality -->
+    <!-- The Payments tab allows users to track all payment-related activities -->
     <!-- GitHub Pages SPA redirect handler -->
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
@@ -13,16 +15,22 @@
       // converts it back into the correct url and adds it to the browser's history
       // using window.history.replaceState(...), which won't cause the browser to
       // attempt to load the new url.
-      (function(l) {
-        if (l.search[1] === '/') {
-          var decoded = l.search.slice(1).split('&').map(function(s) {
-            return s.replace(/~and~/g, '&')
-          }).join('?');
-          window.history.replaceState(null, null,
-              l.pathname.slice(0, -1) + decoded + l.hash
+      (function (l) {
+        if (l.search[1] === "/") {
+          var decoded = l.search
+            .slice(1)
+            .split("&")
+            .map(function (s) {
+              return s.replace(/~and~/g, "&");
+            })
+            .join("?");
+          window.history.replaceState(
+            null,
+            null,
+            l.pathname.slice(0, -1) + decoded + l.hash
           );
         }
-      }(window.location))
+      })(window.location);
     </script>
   </head>
   <body>

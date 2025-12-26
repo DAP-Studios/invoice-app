@@ -4,16 +4,16 @@ import { useInvoices } from "../context/InvoiceContext";
 import { Button } from "../components/Button";
 import { Badge } from "../components/Badge";
 import { formatCurrency } from "../utils/invoiceUtils";
-import "./InvoicesList.css";
+import "./InvoicesList.css"; // Updated to use enhanced styles
 
-export const InvoicesList: React.FC = () => {
+export const PurchaseOrdersList: React.FC = () => {
   const navigate = useNavigate();
   const { invoices, deleteInvoice } = useInvoices();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
 
-  const filteredInvoices = invoices
-    .filter((inv) => inv.type === "INVOICE")
+  const filteredPOs = invoices
+    .filter((inv) => inv.type === "PURCHASE ORDER")
     .filter((inv) => {
       const matchesSearch =
         inv.invoiceNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -25,7 +25,7 @@ export const InvoicesList: React.FC = () => {
     .reverse();
 
   const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this invoice?")) {
+    if (confirm("Are you sure you want to delete this purchase order?")) {
       deleteInvoice(id);
     }
   };
@@ -34,11 +34,13 @@ export const InvoicesList: React.FC = () => {
     <div className="invoices-page">
       <div className="page-header">
         <div>
-          <h1 className="aurix-page-title">All Invoices</h1>
-          <p className="page-subtitle">Manage and view all your invoices</p>
+          <h1 className="aurix-page-title">All Purchase Orders</h1>
+          <p className="page-subtitle">
+            Manage and view all your purchase orders
+          </p>
         </div>
         <Button onClick={() => navigate("/create-invoice")}>
-          ＋ Create New Invoice
+          ＋ Create New Purchase Order
         </Button>
       </div>
 
@@ -47,7 +49,7 @@ export const InvoicesList: React.FC = () => {
         <div className="filter-grid">
           <input
             type="text"
-            placeholder="Search by invoice# or customer"
+            placeholder="Search by PO# or customer"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="filter-input"
@@ -70,7 +72,7 @@ export const InvoicesList: React.FC = () => {
           <table>
             <thead>
               <tr>
-                <th>Invoice #</th>
+                <th>PO #</th>
                 <th>Customer</th>
                 <th>Date</th>
                 <th>Due Date</th>
@@ -80,36 +82,36 @@ export const InvoicesList: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredInvoices.length === 0 ? (
+              {filteredPOs.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="no-results">
-                    No invoices found
+                    No purchase orders found
                   </td>
                 </tr>
               ) : (
-                filteredInvoices.map((invoice) => (
-                  <tr key={invoice.id}>
-                    <td>{invoice.invoiceNo}</td>
-                    <td>{invoice.customerName}</td>
-                    <td>{invoice.date}</td>
-                    <td>{invoice.dueDate}</td>
-                    <td>{formatCurrency(invoice.totalAmount)}</td>
+                filteredPOs.map((po) => (
+                  <tr key={po.id}>
+                    <td>{po.invoiceNo}</td>
+                    <td>{po.customerName}</td>
+                    <td>{po.date}</td>
+                    <td>{po.dueDate}</td>
+                    <td>{formatCurrency(po.totalAmount)}</td>
                     <td>
-                      <Badge status={invoice.status} />
+                      <Badge status={po.status} />
                     </td>
                     <td>
                       <div className="action-buttons-cell">
                         <Button
                           size="small"
                           variant="secondary"
-                          onClick={() => navigate(`/invoices/${invoice.id}`)}
+                          onClick={() => navigate(`/invoices/${po.id}`)}
                         >
                           View
                         </Button>
                         <Button
                           size="small"
                           variant="secondary"
-                          onClick={() => handleDelete(invoice.id)}
+                          onClick={() => handleDelete(po.id)}
                         >
                           Delete
                         </Button>

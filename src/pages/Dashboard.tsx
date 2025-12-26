@@ -1,12 +1,12 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useInvoices } from '../context/InvoiceContext';
-import { useDashboardStats } from '../hooks/useDashboardStats';
-import { StatCard } from '../components/Card';
-import { Button } from '../components/Button';
-import { Badge } from '../components/Badge';
-import { formatCurrency } from '../utils/invoiceUtils';
-import './Dashboard.css';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useInvoices } from "../context/InvoiceContext";
+import { useDashboardStats } from "../hooks/useDashboardStats";
+import { StatCard } from "../components/Card";
+import { Button } from "../components/Button";
+import { Badge } from "../components/Badge";
+import { formatCurrency } from "../utils/invoiceUtils";
+import "./Dashboard.css";
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -17,19 +17,46 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard">
-      <h1>Dashboard</h1>
-      <p className="page-subtitle">Overview of your sales and invoicing activities</p>
+      <header className="dashboard-header">
+        <div>
+          <h1 className="aurix-dashboard-title">Aurix</h1>
+          <p className="page-subtitle">Business Control Center</p>
+        </div>
+        <Button onClick={() => navigate("/create-invoice")}>
+          + New Document
+        </Button>
+      </header>
 
       <div className="stats-grid">
         <StatCard
           title="Total Invoices"
           value={stats.totalInvoices}
-          subtext="All time invoices created"
+          subtext="All time invoices"
         />
         <StatCard
-          title="Total Revenue"
+          title="Total Quotations"
+          value={stats.totalQuotations}
+          subtext="All time quotations"
+        />
+        <StatCard
+          title="Total POs"
+          value={stats.totalPurchaseOrders}
+          subtext="All time purchase orders"
+        />
+        <StatCard
+          title="Revenue"
           value={formatCurrency(stats.totalRevenue)}
-          subtext="From paid invoices"
+          subtext="Paid invoices"
+        />
+        <StatCard
+          title="Quotation Value"
+          value={formatCurrency(stats.totalQuotationValue)}
+          subtext="All quotations value"
+        />
+        <StatCard
+          title="PO Value"
+          value={formatCurrency(stats.totalPurchaseOrderValue)}
+          subtext="All purchase orders value"
         />
         <StatCard
           title="Pending Invoices"
@@ -37,18 +64,36 @@ export const Dashboard: React.FC = () => {
           subtext="Awaiting payment"
         />
         <StatCard
-          title="This Month"
+          title="Pending Quotations"
+          value={stats.pendingQuotations}
+          subtext="Pending quotations"
+        />
+        <StatCard
+          title="Pending POs"
+          value={stats.pendingPurchaseOrders}
+          subtext="Pending POs"
+        />
+        <StatCard
+          title="This Month Revenue"
           value={formatCurrency(stats.thisMonthRevenue)}
-          subtext="Revenue this month"
+          subtext="Invoices this month"
+        />
+        <StatCard
+          title="This Month Quotation"
+          value={formatCurrency(stats.thisMonthQuotationValue)}
+          subtext="Quotations this month"
+        />
+        <StatCard
+          title="This Month PO"
+          value={formatCurrency(stats.thisMonthPurchaseOrderValue)}
+          subtext="POs this month"
         />
       </div>
 
-      <div className="data-table-container">
+      <section className="data-table-container">
         <div className="table-header">
-          <h3>Recent Invoices</h3>
-          <Button onClick={() => navigate('/create-invoice')}>
-            Create New
-          </Button>
+          <h3 className="table-title">Recent Invoices</h3>
+          <Button onClick={() => navigate("/invoices")}>View All</Button>
         </div>
         <div className="data-table">
           <table>
@@ -94,7 +139,7 @@ export const Dashboard: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

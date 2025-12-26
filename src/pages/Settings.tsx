@@ -1,24 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useInvoices } from '../context/InvoiceContext';
-import { CompanySettings } from '../types';
-import { Button } from '../components/Button';
-import { saveLogo, loadLogo } from '../utils/storage';
-import './Settings.css';
+import React, { useState, useEffect } from "react";
+import { useInvoices } from "../context/InvoiceContext";
+import { CompanySettings } from "../types";
+import { Button } from "../components/Button";
+import { saveLogo, loadLogo } from "../utils/storage";
+import "./Settings.css";
 
 export const Settings: React.FC = () => {
   const { settings, updateSettings } = useInvoices();
-  
+
   const [formData, setFormData] = useState<CompanySettings>(
     settings || {
-      companyName: '',
-      companyAddress: '',
-      companyPhone: '',
-      companyEmail: '',
-      companyWebsite: '',
-      bankName: '',
-      bankAccount: '',
-      bankIFSC: '',
-      termsAndConditions: ['Payment due within 30 days', 'Goods once sold will not be taken back']
+      companyName: "",
+      companyAddress: "",
+      companyPhone: "",
+      companyEmail: "",
+      companyWebsite: "",
+      bankName: "",
+      bankAccount: "",
+      bankIFSC: "",
+      termsAndConditions: [
+        "Payment due within 30 days",
+        "Goods once sold will not be taken back",
+      ],
     }
   );
 
@@ -49,19 +52,21 @@ export const Settings: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateSettings(formData);
-    alert('✅ Settings saved successfully!');
+    alert("✅ Settings saved successfully!");
   };
 
   return (
     <div className="settings-page">
-      <h1>Settings</h1>
-      <p className="page-subtitle">Configure your company and invoice details</p>
+      <h1 className="aurix-page-title">Settings</h1>
+      <p className="page-subtitle">
+        Configure your company and invoice details
+      </p>
 
       <div className="settings-container">
         <form onSubmit={handleSubmit}>
           <div className="settings-section">
             <h3>Company Information</h3>
-            
+
             <div className="form-group">
               <label>Company Logo</label>
               <div className="logo-upload-section">
@@ -84,7 +89,7 @@ export const Settings: React.FC = () => {
               <input
                 type="text"
                 value={formData.companyName}
-                onChange={(e) => handleChange('companyName', e.target.value)}
+                onChange={(e) => handleChange("companyName", e.target.value)}
                 required
               />
             </div>
@@ -93,7 +98,7 @@ export const Settings: React.FC = () => {
               <label>Company Address *</label>
               <textarea
                 value={formData.companyAddress}
-                onChange={(e) => handleChange('companyAddress', e.target.value)}
+                onChange={(e) => handleChange("companyAddress", e.target.value)}
                 rows={3}
                 required
               />
@@ -105,7 +110,7 @@ export const Settings: React.FC = () => {
                 <input
                   type="tel"
                   value={formData.companyPhone}
-                  onChange={(e) => handleChange('companyPhone', e.target.value)}
+                  onChange={(e) => handleChange("companyPhone", e.target.value)}
                   required
                 />
               </div>
@@ -114,7 +119,7 @@ export const Settings: React.FC = () => {
                 <input
                   type="email"
                   value={formData.companyEmail}
-                  onChange={(e) => handleChange('companyEmail', e.target.value)}
+                  onChange={(e) => handleChange("companyEmail", e.target.value)}
                   required
                 />
               </div>
@@ -125,20 +130,20 @@ export const Settings: React.FC = () => {
               <input
                 type="text"
                 value={formData.companyWebsite}
-                onChange={(e) => handleChange('companyWebsite', e.target.value)}
+                onChange={(e) => handleChange("companyWebsite", e.target.value)}
               />
             </div>
           </div>
 
           <div className="settings-section">
             <h3>Bank Details</h3>
-            
+
             <div className="form-group">
               <label>Bank Name *</label>
               <input
                 type="text"
                 value={formData.bankName}
-                onChange={(e) => handleChange('bankName', e.target.value)}
+                onChange={(e) => handleChange("bankName", e.target.value)}
                 required
               />
             </div>
@@ -149,7 +154,7 @@ export const Settings: React.FC = () => {
                 <input
                   type="text"
                   value={formData.bankAccount}
-                  onChange={(e) => handleChange('bankAccount', e.target.value)}
+                  onChange={(e) => handleChange("bankAccount", e.target.value)}
                   required
                 />
               </div>
@@ -158,7 +163,7 @@ export const Settings: React.FC = () => {
                 <input
                   type="text"
                   value={formData.bankIFSC}
-                  onChange={(e) => handleChange('bankIFSC', e.target.value)}
+                  onChange={(e) => handleChange("bankIFSC", e.target.value)}
                   required
                 />
               </div>
@@ -172,11 +177,11 @@ export const Settings: React.FC = () => {
             </div>
             <div className="form-group">
               <textarea
-                value={formData.termsAndConditions.join('\n')}
+                value={formData.termsAndConditions.join("\n")}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    termsAndConditions: e.target.value.split('\n')
+                    termsAndConditions: e.target.value.split("\n"),
                   })
                 }
                 rows={5}

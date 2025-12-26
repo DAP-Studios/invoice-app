@@ -1,9 +1,11 @@
 .status-badge {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: bold;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-pill);
+  font-size: 0.95rem;
+  font-weight: 700;
   display: inline-block;
+  font-family: var(--font-family-base);
+  letter-spacing: 0.03em;
 }
 
 .status-paid {
@@ -16,7 +18,15 @@
   color: #856404;
 }
 
+.status-paid {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+.status-pending {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
 .status-draft {
-  background: #e2e3e5;
-  color: #383d41;
+  background: var(--color-neutral-bg);
+  color: var(--color-neutral-text);
 }
