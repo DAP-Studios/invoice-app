@@ -13,7 +13,7 @@
 
 .report-card {
   background: var(--aurix-card-gradient);
-  color: #fff;
+  color: #000000;
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-md);
   padding: var(--space-lg);
@@ -40,7 +40,7 @@
 
 .aurix-btn {
   background: var(--aurix-btn-gradient);
-  color: #fff;
+  color: #000000;
   border: none;
   border-radius: var(--radius-btn);
   padding: 10px 24px;

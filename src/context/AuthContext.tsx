@@ -57,9 +57,7 @@ const getUserEmail = (username: string): string => {
   return `${username}@company.com`;
 };
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [useFirebase] = useState(isFirebaseConfigured());
@@ -279,12 +277,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       {!loading && children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
+// add a stable function export for the hook to fix HMR fast refresh incompatibility
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-};
+}

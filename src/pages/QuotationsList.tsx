@@ -37,7 +37,7 @@ export const QuotationsList: React.FC = () => {
           <h1 className="aurix-page-title">All Quotations</h1>
           <p className="page-subtitle">Manage and view all your quotations</p>
         </div>
-        <Button onClick={() => navigate("/create-invoice")}>
+        <Button onClick={() => navigate("/app/create-invoice")}>
           ＋ Create New Quotation
         </Button>
       </div>

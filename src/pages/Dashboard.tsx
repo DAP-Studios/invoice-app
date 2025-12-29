@@ -22,7 +22,7 @@ export const Dashboard: React.FC = () => {
           <h1 className="aurix-dashboard-title">Aurix</h1>
           <p className="page-subtitle">Business Control Center</p>
         </div>
-        <Button onClick={() => navigate("/create-invoice")}>
+        <Button onClick={() => navigate("/app/create-invoice")}>
           + New Document
         </Button>
       </header>

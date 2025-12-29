@@ -37,7 +37,7 @@ export const InvoicesList: React.FC = () => {
           <h1 className="aurix-page-title">All Invoices</h1>
           <p className="page-subtitle">Manage and view all your invoices</p>
         </div>
-        <Button onClick={() => navigate("/create-invoice")}>
+        <Button onClick={() => navigate("/app/create-invoice")} variant="primary">
           ＋ Create New Invoice
         </Button>
       </div>

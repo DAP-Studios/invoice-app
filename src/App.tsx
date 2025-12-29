@@ -7,10 +7,13 @@ import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { CreateInvoice } from "./pages/CreateInvoice";
 import { InvoicesList } from "./pages/InvoicesList";
-import { Quotations, Customers } from "./pages/PlaceholderPages";
+import { Customers } from "./pages/PlaceholderPages";
+import { QuotationsList } from "./pages/QuotationsList";
 import Reports from "./pages/Reports";
 import { Settings } from "./pages/Settings";
 import { Portfolio } from "./pages/Portfolio";
+import { PurchaseOrdersList } from "./pages/PurchaseOrdersList";
+import Payments from "./pages/Payments";
 import "./styles/global.css";
 
 function App() {
@@ -38,10 +41,19 @@ function App() {
                           element={<CreateInvoice />}
                         />
                         <Route path="/invoices" element={<InvoicesList />} />
-                        <Route path="/quotations" element={<Quotations />} />
+                        {/* Route for quotations now points to the real list */}
+                        <Route
+                          path="/quotation-list"
+                          element={<QuotationsList />}
+                        />
                         <Route path="/customers" element={<Customers />} />
                         <Route path="/reports" element={<Reports />} />
                         <Route path="/settings" element={<Settings />} />
+                        <Route
+                          path="/po-list"
+                          element={<PurchaseOrdersList />}
+                        />
+                        <Route path="/payments" element={<Payments />} />
                       </Routes>
                     </div>
                   </div>

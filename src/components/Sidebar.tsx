@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import aurixLogo from "../assets/AurixLogo.png";
+import aurixLogoShort from "../assets/logo.png";
 import "./Sidebar.css";
-import "./Sidebar.mobile.css";
 
 interface NavItem {
   path: string;
@@ -15,116 +15,171 @@ const navItems: NavItem[] = [
   { path: "/app", label: "Dashboard", icon: "📊" },
   { path: "/app/create-invoice", label: "Create Invoice", icon: "➕" },
   { path: "/app/invoices", label: "All Invoices", icon: "📄" },
-  { path: "/app/quotations", label: "All Quotations", icon: "💼" },
+  { path: "/app/quotation-list", label: "Quotations", icon: "💼" },
   { path: "/app/po-list", label: "All POs", icon: "📋" },
-  { path: "/app/quotation-list", label: "Quotation List", icon: "📜" },
+  { path: "/app/payments", label: "Payments", icon: "💳" },
   { path: "/app/customers", label: "Customers", icon: "👥" },
   { path: "/app/reports", label: "Reports", icon: "📈" },
   { path: "/app/settings", label: "Settings", icon: "⚙️" },
-  { path: "/app/payments", label: "Payments", icon: "💳" }, // New Payments tab
 ];
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const [open, setOpen] = useState(false);
+
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const onResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+
+      if (mobile) {
+        setIsCollapsed(false);
+      } else {
+        setIsMobileOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setIsMobileOpen((v) => !v);
+    } else {
+      setIsCollapsed((v) => !v);
+    }
+  };
+
+  const handleNavClick = () => {
+    if (isMobile) setIsMobileOpen(false);
+  };
 
   const handleLogout = async () => {
-    if (confirm("Are you sure you want to logout?")) {
+    if (window.confirm("Are you sure you want to logout?")) {
       await logout();
       navigate("/login");
     }
   };
 
-  // Close sidebar on navigation (mobile)
-  const handleNavClick = () => {
-    if (window.innerWidth < 768) setOpen(false);
-  };
-
   return (
     <>
-      {/* Hamburger for mobile */}
+      {/* Mobile Menu Button */}
       <button
-        className="sidebar-toggle"
-        aria-label={open ? "Close menu" : "Open menu"}
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        className="mobile-menu-btn"
+        onClick={toggleSidebar}
+        aria-label="Toggle menu"
       >
-        <span className="hamburger" aria-hidden="true">
-          {open ? "✖" : "☰"}
-        </span>
+        ☰
       </button>
-      <nav
-        className={`sidebar${open ? " open" : ""}`}
+
+      {/* Overlay */}
+      {isMobile && isMobileOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setIsMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`sidebar ${!isMobile && isCollapsed ? "collapsed" : ""} ${
+          isMobile && isMobileOpen ? "mobile-open" : ""
+        }`}
         aria-label="Main navigation"
-        tabIndex={open ? 0 : -1}
       >
+        {/* Header */}
         <div className="sidebar-header">
-          <img src={aurixLogo} alt="Aurix Logo" className="aurix-logo" />
-          <h2 className="aurix-title">Aurix</h2>
-          <p className="aurix-subtitle">Business Control Center</p>
-          {user && (
-            <div className="user-info">
-              <span className="user-badge">👤 {user.username}</span>
+          <div className="logo-section">
+            <img src={aurixLogo} className="aurix-logo" alt="Aurix Logo" />
+            <div className="logo-small">
+              <img src={aurixLogoShort} alt="Aurix" />
             </div>
-          )}
-          {/* Desktop toggle button */}
-          <button
-            className="sidebar-toggle desktop-toggle"
-            aria-label={open ? "Close sidebar" : "Open sidebar"}
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-            style={{ display: window.innerWidth >= 768 ? "block" : "none" }}
-          >
-            <span className="hamburger" aria-hidden="true">
-              {open ? "✖" : "☰"}
-            </span>
-          </button>
-        </div>
-        <ul className="nav-menu">
-          {navItems.map((item) => (
-            <li key={item.path}>
-              <Link
-                to={item.path}
-                className={`nav-item ${
-                  location.pathname === item.path ? "active" : ""
-                }`}
-                onClick={handleNavClick}
-                tabIndex={open ? 0 : -1}
-              >
-                <span className="nav-icon">{item.icon}</span>
-                <span>{item.label}</span>
-              </Link>
-            </li>
-          ))}
-          <li>
-            <Link
-              to="/app/payments"
-              className={`nav-item ${
-                location.pathname === "/app/payments" ? "active" : ""
-              }`}
-              onClick={handleNavClick}
-              tabIndex={open ? 0 : -1}
+          </div>
+
+          {!isMobile && (
+            <button
+              className="sidebar-collapse-btn"
+              onClick={toggleSidebar}
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              <span className="nav-icon">💳</span>
-              <span>Payments</span>
-            </Link>
-          </li>
-        </ul>
+              {isCollapsed ? "›" : "‹"}
+            </button>
+          )}
+
+          {isMobile && (
+            <button
+              className="sidebar-close-btn"
+              onClick={() => setIsMobileOpen(false)}
+              aria-label="Close menu"
+            >
+              ✖
+            </button>
+          )}
+        </div>
+
+        {/* User Info */}
+        {user && (
+          <div className="sidebar-user">
+            <div className="user-avatar" aria-hidden="true">
+              {user.username[0].toUpperCase()}
+            </div>
+            {(!isMobile || !isCollapsed) && (
+              <div className="user-details">
+                <p className="user-name">{user.username}</p>
+                <p className="user-role">Administrator</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Navigation */}
+        <nav className="sidebar-nav" aria-label="Primary">
+          <ul className="nav-list">
+            {navItems.map((item) => {
+              const active = location.pathname === item.path;
+              return (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    className={`nav-link ${active ? "active" : ""}`}
+                    onClick={handleNavClick}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    <span className="nav-icon" aria-hidden="true">
+                      {item.icon}
+                    </span>
+                    {(!isMobile || !isCollapsed) && (
+                      <span className="nav-label">{item.label}</span>
+                    )}
+                    {active && (
+                      <span className="active-indicator" aria-hidden="true" />
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        {/* Footer */}
         <div className="sidebar-footer">
           <button
-            onClick={handleLogout}
             className="logout-btn"
-            tabIndex={open ? 0 : -1}
+            onClick={handleLogout}
+            aria-label="Logout"
           >
-            <span className="nav-icon">🚪</span>
-            <span>Logout</span>
+            <span aria-hidden="true">🚪</span>
+            {(!isMobile || !isCollapsed) && <span>Logout</span>}
           </button>
         </div>
-      </nav>
+      </aside>
     </>
   );
 };
-
-// Aurix Sidebar UI: All inline styles removed, all layout/typography handled by CSS classes for strict design system compliance.

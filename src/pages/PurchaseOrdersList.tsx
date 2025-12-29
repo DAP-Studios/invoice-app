@@ -39,7 +39,7 @@ export const PurchaseOrdersList: React.FC = () => {
             Manage and view all your purchase orders
           </p>
         </div>
-        <Button onClick={() => navigate("/create-invoice")}>
+        <Button onClick={() => navigate("/app/create-invoice")}>
           ＋ Create New Purchase Order
         </Button>
       </div>
