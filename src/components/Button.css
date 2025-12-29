@@ -19,11 +19,11 @@
 }
 
 .btn {
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--spacing-small) var(--spacing-medium);
   border: none;
   cursor: pointer;
   font-size: 1rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--border-radius);
   font-weight: 700;
   transition: background 0.2s, color 0.2s, border 0.2s;
   font-family: var(--font-family-heading);
@@ -31,14 +31,14 @@
   box-shadow: none;
 }
 .btn-primary {
-  background: var(--color-primary);
+  background: var(--primary-color);
   color: #fff;
-  border: 2px solid var(--color-primary);
+  border: 2px solid var(--primary-color);
 }
 .btn-primary:hover:not(:disabled),
 .btn-primary:focus-visible {
-  background: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
+  background: var(--secondary-color);
+  border-color: var(--secondary-color);
   color: #fff;
 }
 .btn-secondary {
