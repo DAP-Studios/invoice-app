@@ -2,21 +2,23 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Portfolio.css";
 import daplogo from "../assets/daplogo.png";
 
+interface GitHubRepo {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+  language: string | null;
+  stars: number;
+}
+
 export const Portfolio: React.FC = () => {
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const wolfCanvasRef = useRef<HTMLCanvasElement>(null);
-  const ballRef = useRef<any>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
   const [, setMousePos] = useState({ x: 0, y: 0 });
+  const [projects, setProjects] = useState<GitHubRepo[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initialize ferrofluid ball
-    initBall();
-
-    // Initialize animated wolf
-    initWolf();
-
     // Custom cursor with smooth follow
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
@@ -56,15 +58,6 @@ export const Portfolio: React.FC = () => {
         hero.style.transform = `translateY(${scrollY * 0.5}px)`;
         hero.style.opacity = `${Math.max(0, 1 - scrollY / 800)}`;
       }
-
-      // Parallax for wolf
-      const wolfContainer = document.querySelector(
-        ".wolf-container",
-      ) as HTMLElement;
-      if (wolfContainer) {
-        const scrollY = window.scrollY;
-        wolfContainer.style.transform = `translateY(${scrollY * 0.3}px) scale(${1 - scrollY / 2000})`;
-      }
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -81,10 +74,37 @@ export const Portfolio: React.FC = () => {
       { threshold: 0.1, rootMargin: "-80px" },
     );
 
+    // Fetch GitHub projects
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(
+          "https://api.github.com/users/DepParmar/repos?sort=stars&per_page=6",
+        );
+        const data = await response.json();
+        const filtered = data
+          .filter((repo: any) => !repo.fork)
+          .slice(0, 6)
+          .map((repo: any) => ({
+            id: repo.id,
+            name: repo.name,
+            description: repo.description || "No description",
+            url: repo.html_url,
+            language: repo.language,
+            stars: repo.stargazers_count,
+          }));
+        setProjects(filtered);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProjects();
+
     // Observe all animatable elements
     document
       .querySelectorAll(
-        ".capability-cell, .arsenal-item, .section-header, .contact-content",
+        ".capability-cell, .arsenal-item, .section-header, .project-card, .contact-content",
       )
       .forEach((el) => {
         observer.observe(el);
@@ -141,307 +161,8 @@ export const Portfolio: React.FC = () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("mousemove", handleMouseMove);
       observer.disconnect();
-      if (ballRef.current) {
-        ballRef.current.destroy();
-      }
     };
   }, []);
-
-  const initWolf = () => {
-    const canvas = wolfCanvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Set canvas size
-    const updateSize = () => {
-      const container = canvas.parentElement;
-      if (container) {
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-      }
-    };
-    updateSize();
-    window.addEventListener("resize", updateSize);
-
-    // Wolf animation variables
-    let time = 0;
-    const particles: Array<{
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      size: number;
-      alpha: number;
-    }> = [];
-
-    // Create particles
-    for (let i = 0; i < 80; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size: Math.random() * 2 + 1,
-        alpha: Math.random() * 0.5 + 0.2,
-      });
-    }
-
-    const drawWolf = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const breathe = Math.sin(time * 0.02) * 3;
-
-      // Wolf silhouette with glow
-      ctx.save();
-      ctx.translate(centerX, centerY);
-
-      // Glow effect
-      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 150);
-      gradient.addColorStop(0, "rgba(230, 57, 70, 0.15)");
-      gradient.addColorStop(1, "rgba(230, 57, 70, 0)");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(-200, -200, 400, 400);
-
-      // Wolf body
-      ctx.fillStyle = `rgba(230, 57, 70, ${0.7 + Math.sin(time * 0.03) * 0.1})`;
-      ctx.strokeStyle = "rgba(230, 57, 70, 0.9)";
-      ctx.lineWidth = 2;
-
-      // Head
-      ctx.beginPath();
-      ctx.ellipse(0, -20 + breathe, 40, 50, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      // Ears
-      ctx.beginPath();
-      ctx.moveTo(-25, -60 + breathe);
-      ctx.lineTo(-35, -85 + breathe);
-      ctx.lineTo(-15, -70 + breathe);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(25, -60 + breathe);
-      ctx.lineTo(35, -85 + breathe);
-      ctx.lineTo(15, -70 + breathe);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      // Snout
-      ctx.beginPath();
-      ctx.ellipse(0, 0 + breathe, 25, 20, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      // Eyes glow
-      const eyeGlow = Math.sin(time * 0.05) * 0.3 + 0.7;
-      ctx.fillStyle = `rgba(255, 100, 100, ${eyeGlow})`;
-      ctx.beginPath();
-      ctx.arc(-12, -25 + breathe, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(12, -25 + breathe, 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Body
-      ctx.fillStyle = `rgba(230, 57, 70, ${0.6 + Math.sin(time * 0.03) * 0.1})`;
-      ctx.beginPath();
-      ctx.ellipse(0, 40, 50, 60, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      // Tail (animated)
-      const tailSway = Math.sin(time * 0.05) * 20;
-      ctx.beginPath();
-      ctx.moveTo(-40, 70);
-      ctx.quadraticCurveTo(-80 + tailSway, 50, -90 + tailSway, 20);
-      ctx.strokeStyle = "rgba(230, 57, 70, 0.8)";
-      ctx.lineWidth = 8;
-      ctx.stroke();
-
-      ctx.restore();
-
-      // Particles
-      particles.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-        ctx.fillStyle = `rgba(230, 57, 70, ${p.alpha})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      time++;
-      requestAnimationFrame(drawWolf);
-    };
-
-    drawWolf();
-  };
-
-  const initBall = async () => {
-    const THREE = await import("three");
-
-    const container = canvasRef.current;
-    if (!container) return;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      50,
-      container.clientWidth / container.clientHeight,
-      0.1,
-      100,
-    );
-    camera.position.z = 3;
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-    container.appendChild(renderer.domElement);
-
-    const ballMaterial = new THREE.MeshStandardMaterial({
-      color: 0x0d0d0d,
-      roughness: 0.1,
-      wireframe: false,
-      emissive: 0x050505,
-      metalness: 0.95,
-      side: THREE.DoubleSide,
-    });
-
-    const geometry = new THREE.IcosahedronGeometry(0.5, 128);
-    const ball = new THREE.Mesh(geometry, ballMaterial);
-    geometry.computeVertexNormals();
-    scene.add(ball);
-
-    const positionAttribute = geometry.getAttribute("position");
-    const originalPositions = new Float32Array(positionAttribute.array);
-
-    const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
-    light1.position.set(8, 8, 8);
-    scene.add(light1);
-
-    const light2 = new THREE.DirectionalLight(0x888888, 0.8);
-    light2.position.set(-8, -8, -8);
-    scene.add(light2);
-
-    const light3 = new THREE.DirectionalLight(0xaaaaaa, 0.6);
-    light3.position.set(0, 5, -5);
-    scene.add(light3);
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-
-    const mouse = new THREE.Vector2();
-    const targetMouse = new THREE.Vector2();
-    const magnetPos = new THREE.Vector3(0, 0, 0);
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    };
-
-    container.addEventListener("mousemove", handleMouseMove);
-
-    const clock = new THREE.Clock();
-    let animationId: number;
-
-    const animate = () => {
-      animationId = requestAnimationFrame(animate);
-      const time = clock.getElapsedTime();
-
-      targetMouse.lerp(mouse, 0.06);
-      magnetPos.x = targetMouse.x * 2.5;
-      magnetPos.y = targetMouse.y * 2.5;
-      magnetPos.z = 0.5;
-
-      const positions = positionAttribute.array as Float32Array;
-      const cursorDist = Math.sqrt(
-        magnetPos.x * magnetPos.x + magnetPos.y * magnetPos.y,
-      );
-      const proximityCurve = Math.max(0, 1 - cursorDist / 3);
-      const spikeStrength = proximityCurve * 0.25;
-
-      for (let i = 0; i < positions.length; i += 3) {
-        const x = originalPositions[i];
-        const y = originalPositions[i + 1];
-        const z = originalPositions[i + 2];
-
-        const vertexRadius = Math.sqrt(x * x + y * y + z * z);
-        const normalX = vertexRadius > 0 ? x / vertexRadius : 0;
-        const normalY = vertexRadius > 0 ? y / vertexRadius : 0;
-        const normalZ = vertexRadius > 0 ? z / vertexRadius : 0;
-
-        const dx = magnetPos.x - x;
-        const dy = magnetPos.y - y;
-        const dz = magnetPos.z - z;
-        const distToMagnet = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-        const dirX = distToMagnet > 0 ? dx / distToMagnet : 0;
-        const dirY = distToMagnet > 0 ? dy / distToMagnet : 0;
-        const dirZ = distToMagnet > 0 ? dz / distToMagnet : 0;
-
-        const facingMagnet = Math.max(
-          0,
-          (x * dirX + y * dirY + z * dirZ) / Math.max(vertexRadius, 0.001),
-        );
-
-        const spikeAmount = spikeStrength * facingMagnet;
-
-        positions[i] = x + normalX * spikeAmount;
-        positions[i + 1] = y + normalY * spikeAmount;
-        positions[i + 2] = z + normalZ * spikeAmount;
-      }
-      positionAttribute.needsUpdate = true;
-      geometry.computeVertexNormals();
-
-      const magnetDistance = magnetPos.length();
-      const proximityPull = Math.max(0, 1 - magnetDistance / 5) * 0.4;
-
-      ball.rotation.x += (targetMouse.y * 0.4 - ball.rotation.x) * 0.06;
-      ball.rotation.y += (targetMouse.x * 0.4 - ball.rotation.y) * 0.06;
-      ball.rotation.z += 0.0012;
-
-      const pulseScale = 1 + proximityPull * 0.3 + Math.sin(time * 3) * 0.08;
-      ball.scale.set(pulseScale, pulseScale, pulseScale);
-
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    const handleResize = () => {
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    };
-    window.addEventListener("resize", handleResize);
-
-    ballRef.current = {
-      destroy: () => {
-        cancelAnimationFrame(animationId);
-        container.removeEventListener("mousemove", handleMouseMove);
-        window.removeEventListener("resize", handleResize);
-        geometry.dispose();
-        ballMaterial.dispose();
-        renderer.dispose();
-        if (container.contains(renderer.domElement))
-          container.removeChild(renderer.domElement);
-      },
-    };
-  };
 
   return (
     <div className="portfolio-page">
@@ -454,15 +175,8 @@ export const Portfolio: React.FC = () => {
       <div className="ambient-glow" id="glow"></div>
 
       <section className="hero">
-        <div ref={canvasRef} className="ferrofluid-canvas"></div>
-
         <div className="hero-content">
-          {/* Wolf beside logo */}
           <div className="hero-main">
-            <div className="wolf-container">
-              <canvas ref={wolfCanvasRef} className="wolf-canvas"></canvas>
-            </div>
-
             <div className="logo-mark">
               <img src={daplogo} alt="DAP Logo" className="logo-image" />
             </div>
@@ -584,6 +298,70 @@ export const Portfolio: React.FC = () => {
               Photoshop · Illustrator · InkScape · Figma
             </span>
           </div>
+        </div>
+      </section>
+
+      <section className="revolving-section">
+        <div className="revolving-container">
+          <div className="revolving-carousel">
+            <div className="revolving-item">
+              <span className="revolving-label">React</span>
+            </div>
+            <div className="revolving-item">
+              <span className="revolving-label">TypeScript</span>
+            </div>
+            <div className="revolving-item">
+              <span className="revolving-label">Firebase</span>
+            </div>
+            <div className="revolving-item">
+              <span className="revolving-label">Tailwind</span>
+            </div>
+            <div className="revolving-item">
+              <span className="revolving-label">Node.js</span>
+            </div>
+            <div className="revolving-item">
+              <span className="revolving-label">Python</span>
+            </div>
+          </div>
+          <p className="revolving-text">Featured Technologies</p>
+        </div>
+      </section>
+
+      <section className="projects">
+        <div className="section-header">
+          <p className="section-number">// 03</p>
+          <h2 className="section-title">Projects</h2>
+        </div>
+
+        <div className="projects-grid">
+          {loading ? (
+            <p style={{ color: "rgba(224, 224, 224, 0.5)" }}>
+              Loading projects...
+            </p>
+          ) : projects.length > 0 ? (
+            projects.map((project) => (
+              <a
+                key={project.id}
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="project-card"
+              >
+                <div className="project-header">
+                  <h3 className="project-name">{project.name}</h3>
+                  <span className="project-stars">★ {project.stars}</span>
+                </div>
+                <p className="project-desc">{project.description}</p>
+                {project.language && (
+                  <span className="project-lang">{project.language}</span>
+                )}
+              </a>
+            ))
+          ) : (
+            <p style={{ color: "rgba(224, 224, 224, 0.5)" }}>
+              No projects found
+            </p>
+          )}
         </div>
       </section>
 
