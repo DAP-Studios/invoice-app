@@ -8,23 +8,23 @@ export const Portfolio: React.FC = () => {
   const ballRef = useRef<any>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     // Initialize ferrofluid ball
     initBall();
-    
+
     // Initialize animated wolf
     initWolf();
 
     // Custom cursor with smooth follow
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
-      
+
       if (cursorRef.current && cursorDotRef.current) {
         cursorDotRef.current.style.left = e.clientX + "px";
         cursorDotRef.current.style.top = e.clientY + "px";
-        
+
         requestAnimationFrame(() => {
           if (cursorRef.current) {
             cursorRef.current.style.left = e.clientX + "px";
@@ -58,7 +58,9 @@ export const Portfolio: React.FC = () => {
       }
 
       // Parallax for wolf
-      const wolfContainer = document.querySelector(".wolf-container") as HTMLElement;
+      const wolfContainer = document.querySelector(
+        ".wolf-container",
+      ) as HTMLElement;
       if (wolfContainer) {
         const scrollY = window.scrollY;
         wolfContainer.style.transform = `translateY(${scrollY * 0.3}px) scale(${1 - scrollY / 2000})`;
@@ -76,41 +78,45 @@ export const Portfolio: React.FC = () => {
           }
         });
       },
-      { threshold: 0.1, rootMargin: "-80px" }
+      { threshold: 0.1, rootMargin: "-80px" },
     );
 
     // Observe all animatable elements
     document
-      .querySelectorAll(".capability-cell, .arsenal-item, .section-header, .contact-content")
+      .querySelectorAll(
+        ".capability-cell, .arsenal-item, .section-header, .contact-content",
+      )
       .forEach((el) => {
         observer.observe(el);
       });
 
     // Magnetic effect on interactive elements
-    const magneticElements = document.querySelectorAll(".capability-cell, .arsenal-item");
-    
+    const magneticElements = document.querySelectorAll(
+      ".capability-cell, .arsenal-item",
+    );
+
     magneticElements.forEach((el) => {
       const element = el as HTMLElement;
-      
+
       element.addEventListener("mouseenter", () => {
         if (cursorRef.current) {
           cursorRef.current.classList.add("cursor-hover");
         }
       });
-      
+
       element.addEventListener("mouseleave", () => {
         if (cursorRef.current) {
           cursorRef.current.classList.remove("cursor-hover");
         }
         element.style.transform = "translate(0, 0) scale(1)";
       });
-      
+
       element.addEventListener("mousemove", (e: Event) => {
         const mouseEvent = e as MouseEvent;
         const rect = element.getBoundingClientRect();
         const x = mouseEvent.clientX - rect.left - rect.width / 2;
         const y = mouseEvent.clientY - rect.top - rect.height / 2;
-        
+
         element.style.transform = `translate(${x * 0.08}px, ${y * 0.08}px) scale(1.02)`;
       });
     });
@@ -123,7 +129,7 @@ export const Portfolio: React.FC = () => {
           cursorRef.current.classList.add("cursor-hover");
         }
       });
-      
+
       emailEl.addEventListener("mouseleave", () => {
         if (cursorRef.current) {
           cursorRef.current.classList.remove("cursor-hover");
@@ -192,7 +198,7 @@ export const Portfolio: React.FC = () => {
       // Wolf silhouette with glow
       ctx.save();
       ctx.translate(centerX, centerY);
-      
+
       // Glow effect
       const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 150);
       gradient.addColorStop(0, "rgba(230, 57, 70, 0.15)");
@@ -294,7 +300,7 @@ export const Portfolio: React.FC = () => {
       50,
       container.clientWidth / container.clientHeight,
       0.1,
-      100
+      100,
     );
     camera.position.z = 3;
 
@@ -362,7 +368,7 @@ export const Portfolio: React.FC = () => {
 
       const positions = positionAttribute.array as Float32Array;
       const cursorDist = Math.sqrt(
-        magnetPos.x * magnetPos.x + magnetPos.y * magnetPos.y
+        magnetPos.x * magnetPos.x + magnetPos.y * magnetPos.y,
       );
       const proximityCurve = Math.max(0, 1 - cursorDist / 3);
       const spikeStrength = proximityCurve * 0.25;
@@ -388,7 +394,7 @@ export const Portfolio: React.FC = () => {
 
         const facingMagnet = Math.max(
           0,
-          (x * dirX + y * dirY + z * dirZ) / Math.max(vertexRadius, 0.001)
+          (x * dirX + y * dirY + z * dirZ) / Math.max(vertexRadius, 0.001),
         );
 
         const spikeAmount = spikeStrength * facingMagnet;
@@ -442,30 +448,32 @@ export const Portfolio: React.FC = () => {
       {/* Custom Cursor */}
       <div ref={cursorRef} className="custom-cursor"></div>
       <div ref={cursorDotRef} className="custom-cursor-dot"></div>
-      
+
       <div className="bg-layer"></div>
       <div className="grid-overlay"></div>
       <div className="ambient-glow" id="glow"></div>
 
       <section className="hero">
         <div ref={canvasRef} className="ferrofluid-canvas"></div>
-        
+
         <div className="hero-content">
           {/* Wolf beside logo */}
           <div className="hero-main">
             <div className="wolf-container">
               <canvas ref={wolfCanvasRef} className="wolf-canvas"></canvas>
             </div>
-            
+
             <div className="logo-mark">
               <img src={daplogo} alt="DAP Logo" className="logo-image" />
             </div>
           </div>
-          
+
           <h1 className="hero-title fade-in-up">
             DAP <span className="hero-subtitle">STUDIOS</span>
           </h1>
-          <p className="hero-tagline fade-in-up delay-1">Adapt · Elevate · Amplify</p>
+          <p className="hero-tagline fade-in-up delay-1">
+            Adapt · Elevate · Amplify
+          </p>
         </div>
       </section>
 
