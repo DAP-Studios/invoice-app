@@ -1,5 +1,5 @@
 .items-table-container {
-  margin: 8px 0;
+  margin: 0;
 }
 
 .items-table {
@@ -25,14 +25,38 @@
   vertical-align: middle;
 }
 
-.items-table .col-srno { width: 5%; text-align: center; }
-.items-table .col-description { width: 35%; text-align: left; }
-.items-table .col-hsn { width: 10%; text-align: center; }
-.items-table .col-unit { width: 8%; text-align: center; }
-.items-table .col-quantity { width: 8%; text-align: center; }
-.items-table .col-rate { width: 12%; text-align: right; }
-.items-table .col-amount { width: 12%; text-align: right; }
-.items-table .col-action { width: 10%; text-align: center; }
+.items-table .col-srno {
+  width: 5%;
+  text-align: center;
+}
+.items-table .col-description {
+  width: 35%;
+  text-align: left;
+}
+.items-table .col-hsn {
+  width: 10%;
+  text-align: center;
+}
+.items-table .col-unit {
+  width: 8%;
+  text-align: center;
+}
+.items-table .col-quantity {
+  width: 8%;
+  text-align: center;
+}
+.items-table .col-rate {
+  width: 12%;
+  text-align: right;
+}
+.items-table .col-amount {
+  width: 12%;
+  text-align: right;
+}
+.items-table .col-action {
+  width: 10%;
+  text-align: center;
+}
 
 .items-table input {
   width: 100%;
@@ -67,6 +91,15 @@
 @media print {
   .add-row-btn,
   .remove-btn {
+    display: none !important;
+  }
+
+  .items-table-container .add-row-btn {
+    display: none !important;
+  }
+
+  .items-table th.col-action,
+  .items-table td.col-action {
     display: none !important;
   }
 

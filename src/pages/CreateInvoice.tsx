@@ -209,139 +209,163 @@ export const CreateInvoice: React.FC = () => {
       </div>
 
       <div id="invoice-content" className="invoice-container">
-        {/* Header with Logo and Company Info */}
-        <div className="header-section">
-          <div className="logo-section">
-            {logo ? (
-              <img src={logo} alt="Company Logo" />
-            ) : (
-              <div className="logo-placeholder">
-                <strong>
-                  COMPANY
-                  <br />
-                  LOGO
-                </strong>
-              </div>
-            )}
-          </div>
-
-          {/* Company Info Grid */}
-          <div className="company-info-grid">
-            <div className="info-box">
-              <h3>{companyInfo.companyName || "YOUR COMPANY NAME"}</h3>
-            </div>
-            <div className="info-box">
-              <p>{companyInfo.companyWebsite || "www.aurix.com"}</p>
-            </div>
-            <div className="info-box">
-              <p>{companyInfo.companyAddress || "Company Address"}</p>
-            </div>
-            <div className="info-box">
-              <p>
-                Phone: {companyInfo.companyPhone || "-"} <br />
-                Email: {companyInfo.companyEmail || "-"} <br />
-                GSTIN: {companyInfo.gstNumber || "-"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Tax Invoice Title */}
-        <div className="doc-header">
-          <h2>{docType}</h2>
-        </div>
-
-        {/* Invoice Details Grid */}
-        <table className="info-table">
+        {/* Main Invoice Table - Everything Inside Border */}
+        <table className="main-invoice-table">
           <tbody>
+            {/* Header with Logo and Company Info */}
             <tr>
-              <td style={{ width: "60%" }} rowSpan={2}>
-                <h3>Buyer Detail (Bill To)</h3>
-                <p>
-                  <input
-                    type="text"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="editable-input"
-                    style={{ fontWeight: "bold", width: "100%" }}
-                  />
-                </p>
-                <p>
-                  <textarea
-                    value={customerAddress}
-                    onChange={(e) => setCustomerAddress(e.target.value)}
-                    className="editable-textarea"
-                    rows={2}
-                  />
-                </p>
-                <p>
-                  <strong>Contact Person:</strong>{" "}
-                  <input
-                    type="text"
-                    value={customerContact}
-                    onChange={(e) => setCustomerContact(e.target.value)}
-                    className="editable-input"
-                  />
-                </p>
-                <p>
-                  <strong>Contact No:</strong>{" "}
-                  <input
-                    type="text"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    className="editable-input"
-                  />
-                </p>
-                <p>
-                  <strong>Email:</strong>{" "}
-                  <input
-                    type="text"
-                    value={customerEmail}
-                    onChange={(e) => setCustomerEmail(e.target.value)}
-                    className="editable-input"
-                  />
-                </p>
-              </td>
-              <td style={{ width: "40%" }} colSpan={2}>
-                <h3>{docType} Details</h3>
-                <p>
-                  <strong>{docType} No:</strong> {invoiceNumber}
-                </p>
-                <p>
-                  <strong>{docType} Date:</strong>{" "}
-                  <input
-                    type="text"
-                    value={invoiceDate}
-                    onChange={(e) => setInvoiceDate(e.target.value)}
-                    className="editable-input"
-                  />
-                </p>
+              <td colSpan={3} style={{ padding: 0, border: "none" }}>
+                <table className="header-section">
+                  <tbody>
+                    <tr>
+                      {/* LEFT: LOGO */}
+                      <td className="logo-cell" rowSpan={3}>
+                        {logo ? (
+                          <img
+                            src={logo}
+                            alt="Company Logo"
+                            className="logo-img"
+                          />
+                        ) : (
+                          <div className="logo-placeholder">
+                            COMPANY
+                            <br />
+                            LOGO
+                          </div>
+                        )}
+                      </td>
+
+                      {/* COMPANY NAME */}
+                      <td colSpan={2} className="company-name">
+                        {companyInfo.companyName || "Company Name"}
+                      </td>
+                    </tr>
+
+                    <tr>
+                      {/* COMPANY ADDRESS */}
+                      <td colSpan={2} className="company-address">
+                        {companyInfo.companyAddress || "Company Address"}
+                      </td>
+                    </tr>
+
+                    <tr>
+                      {/* CONTACT INFO */}
+                      <td className="info-box">
+                        Phone: {companyInfo.companyPhone || "-"} <br />
+                        Email: {companyInfo.companyEmail || "-"}
+                      </td>
+
+                      {/* WEBSITE + GST */}
+                      <td className="info-box">
+                        Website: {companyInfo.companyWebsite || "-"} <br />
+                        GST: {companyInfo.gstNumber || "-"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
             </tr>
+
+            {/* Tax Invoice Title */}
             <tr>
-              <td colSpan={2}>
-                <p>
-                  <strong>Due Date:</strong>{" "}
-                  <input
-                    type="text"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="editable-input"
-                  />
-                </p>
-                <p>
-                  <strong>PO No:</strong>{" "}
-                  <input
-                    type="text"
-                    value={poNumber}
-                    onChange={(e) => setPoNumber(e.target.value)}
-                    className="editable-input"
-                    placeholder="N/A"
-                  />
-                </p>
+              <td colSpan={3} className="doc-header-cell">
+                <h2>{docType}</h2>
               </td>
             </tr>
-            {/* <tr>
+
+            {/* Invoice Details Grid */}
+            <tr>
+              <td colSpan={3} style={{ padding: 0, border: "none" }}>
+                <table className="info-table">
+                  <tbody>
+                    <tr>
+                      <td style={{ width: "60%" }} rowSpan={2}>
+                        <h3>Buyer Detail (Bill To)</h3>
+                        <p>
+                          <input
+                            type="text"
+                            value={customerName}
+                            onChange={(e) => setCustomerName(e.target.value)}
+                            className="editable-input"
+                            style={{ fontWeight: "bold", width: "100%" }}
+                          />
+                        </p>
+                        <p>
+                          <textarea
+                            value={customerAddress}
+                            onChange={(e) => setCustomerAddress(e.target.value)}
+                            className="editable-textarea"
+                            rows={2}
+                          />
+                        </p>
+                        <p>
+                          <strong>Contact Person:</strong>{" "}
+                          <input
+                            type="text"
+                            value={customerContact}
+                            onChange={(e) => setCustomerContact(e.target.value)}
+                            className="editable-input"
+                          />
+                        </p>
+                        <p>
+                          <strong>Contact No:</strong>{" "}
+                          <input
+                            type="text"
+                            value={customerPhone}
+                            onChange={(e) => setCustomerPhone(e.target.value)}
+                            className="editable-input"
+                          />
+                        </p>
+                        <p>
+                          <strong>Email:</strong>{" "}
+                          <input
+                            type="text"
+                            value={customerEmail}
+                            onChange={(e) => setCustomerEmail(e.target.value)}
+                            className="editable-input"
+                          />
+                        </p>
+                      </td>
+                      <td style={{ width: "40%" }} colSpan={2}>
+                        <h3>{docType} Details</h3>
+                        <p>
+                          <strong>{docType} No:</strong> {invoiceNumber}
+                        </p>
+                        <p>
+                          <strong>{docType} Date:</strong>{" "}
+                          <input
+                            type="text"
+                            value={invoiceDate}
+                            onChange={(e) => setInvoiceDate(e.target.value)}
+                            className="editable-input"
+                          />
+                        </p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan={2}>
+                        <p>
+                          <strong>Due Date:</strong>{" "}
+                          <input
+                            type="text"
+                            value={dueDate}
+                            onChange={(e) => setDueDate(e.target.value)}
+                            className="editable-input"
+                          />
+                        </p>
+                        <p>
+                          <strong>PO No:</strong>{" "}
+                          <input
+                            type="text"
+                            value={poNumber}
+                            onChange={(e) => setPoNumber(e.target.value)}
+                            className="editable-input"
+                            placeholder="N/A"
+                          />
+                        </p>
+                      </td>
+                    </tr>
+                    {/* <tr>
               <td>
                 <h3>Delivery Address (Ship To)</h3>
                 <p style={{ fontWeight: "bold" }}>{customerName}</p>
@@ -351,81 +375,103 @@ export const CreateInvoice: React.FC = () => {
               </td>
               <td colSpan={2}></td>
             </tr> */}
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            {/* Items Table */}
+            <tr>
+              <td colSpan={3} style={{ padding: 0, border: "none" }}>
+                <ItemsTable items={items} onItemsChange={setItems} />
+              </td>
+            </tr>
+
+            {/* Totals Table */}
+            <tr>
+              <td colSpan={3} style={{ padding: 0, border: "none" }}>
+                <TotalsTable
+                  subtotal={subtotal}
+                  cgstRate={cgstRate}
+                  sgstRate={sgstRate}
+                  cgstAmount={cgstAmount}
+                  sgstAmount={sgstAmount}
+                  totalGST={totalGST}
+                  totalAmount={totalAmount}
+                  onCGSTRateChange={setCgstRate}
+                  onSGSTRateChange={setSgstRate}
+                />
+              </td>
+            </tr>
+
+            {/* Amount in Words */}
+            <tr>
+              <td colSpan={3} className="amount-words-cell">
+                <strong>Total Amount in Words:</strong>{" "}
+                {numberToWords(Math.round(totalAmount))}
+              </td>
+            </tr>
+
+            {/* Footer Section */}
+            <tr>
+              <td colSpan={3} className="footer-cell">
+                <div className="footer-section">
+                  <div className="bank-details">
+                    <strong>BANK DETAILS:</strong>
+                    <p style={{ margin: "4px 0" }}>
+                      Bank Name: {companyInfo.bankName || "-"} | Bank A/C:{" "}
+                      {companyInfo.bankAccount || "-"} | Bank IFSC:{" "}
+                      {companyInfo.bankIFSC || "-"}
+                    </p>
+                  </div>
+
+                  <div className="terms">
+                    <strong>Terms & Conditions:</strong>
+                    <ol>
+                      {companyInfo.termsAndConditions &&
+                      companyInfo.termsAndConditions.length > 0 ? (
+                        companyInfo.termsAndConditions.map((term, index) => (
+                          <li key={index}>{term}</li>
+                        ))
+                      ) : (
+                        <>
+                          <li>
+                            Goods once sold will not be taken back unless
+                            specifically agreed by us.
+                          </li>
+                          <li>
+                            Goods returned should be accompanied by valid
+                            invoice for acceptance.
+                          </li>
+                          <li>
+                            We will not accept any claim for compensation in
+                            case for any reason you are not able to avail cenvat
+                            Credit of this invoice.
+                          </li>
+                          <li>
+                            Acceptance of material will qualify us for full
+                            payment of this invoice.
+                          </li>
+                          <li>Subject to jurisdiction.</li>
+                        </>
+                      )}
+                    </ol>
+                  </div>
+
+                  <div className="signature">
+                    <p>
+                      <strong>
+                        For {companyInfo.companyName || "YOUR COMPANY NAME"}
+                      </strong>
+                    </p>
+                    <div className="signature-line"></div>
+                    <p style={{ marginTop: "3px" }}>AUTHORISED SIGNATORY</p>
+                  </div>
+                </div>
+              </td>
+            </tr>
           </tbody>
         </table>
-
-        <ItemsTable items={items} onItemsChange={setItems} />
-
-        <TotalsTable
-          subtotal={subtotal}
-          cgstRate={cgstRate}
-          sgstRate={sgstRate}
-          cgstAmount={cgstAmount}
-          sgstAmount={sgstAmount}
-          totalGST={totalGST}
-          totalAmount={totalAmount}
-          onCGSTRateChange={setCgstRate}
-          onSGSTRateChange={setSgstRate}
-        />
-
-        <div className="amount-words">
-          <strong>Total Amount in Words:</strong>{" "}
-          {numberToWords(Math.round(totalAmount))}
-        </div>
-
-        <div className="footer-section">
-          <div className="bank-details">
-            <strong>BANK DETAILS:</strong>
-            <p style={{ margin: "4px 0" }}>
-              Bank Name: {companyInfo.bankName || "-"} | Bank A/C:{" "}
-              {companyInfo.bankAccount || "-"} | Bank IFSC:{" "}
-              {companyInfo.bankIFSC || "-"}
-            </p>
-          </div>
-
-          <div className="terms">
-            <strong>Terms & Conditions:</strong>
-            <ol>
-              {companyInfo.termsAndConditions &&
-              companyInfo.termsAndConditions.length > 0 ? (
-                companyInfo.termsAndConditions.map((term, index) => (
-                  <li key={index}>{term}</li>
-                ))
-              ) : (
-                <>
-                  <li>
-                    Goods once sold will not be taken back unless specifically
-                    agreed by us.
-                  </li>
-                  <li>
-                    Goods returned should be accompanied by valid invoice for
-                    acceptance.
-                  </li>
-                  <li>
-                    We will not accept any claim for compensation in case for
-                    any reason you are not able to avail cenvat Credit of this
-                    invoice.
-                  </li>
-                  <li>
-                    Acceptance of material will qualify us for full payment of
-                    this invoice.
-                  </li>
-                  <li>Subject to jurisdiction.</li>
-                </>
-              )}
-            </ol>
-          </div>
-
-          <div className="signature">
-            <p>
-              <strong>
-                For {companyInfo.companyName || "YOUR COMPANY NAME"}
-              </strong>
-            </p>
-            <div className="signature-line"></div>
-            <p style={{ marginTop: "3px" }}>AUTHORISED SIGNATORY</p>
-          </div>
-        </div>
 
         <div
           className="no-print"
