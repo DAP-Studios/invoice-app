@@ -5,261 +5,398 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  User as FirebaseUser,
-} from "firebase/auth";
-import { auth } from "../config/firebase";
+
+interface CustomStorage {
+  get(key: string): Promise<{ value: string } | null>;
+  set(key: string, value: string): Promise<void>;
+  delete(key: string): Promise<void>;
+}
+
+declare global {
+  interface Window {
+    storage: CustomStorage;
+  }
+}
 
 interface User {
   username: string;
   email: string;
+  phone: string;
+  uid: string;
+  hasPin: boolean;
+}
+
+interface StoredUser {
+  username: string;
+  email: string;
+  phone: string;
+  password: string;
+  pin?: string;
   uid: string;
 }
 
-interface AuthContextType {
+// Demo admin account
+const DEMO_ADMIN: StoredUser = {
+  username: "admin",
+  email: "admin@invoiceapp.com",
+  phone: "+1234567890",
+  password: "admin123",
+  uid: "admin-uid-001",
+};
+
+// Storage helper
+const storage = {
+  getItem: async (key: string) => {
+    const result = await window.storage?.get(key);
+    return result?.value || null;
+  },
+  setItem: async (key: string, value: string) => {
+    await window.storage?.set(key, value);
+  },
+  removeItem: async (key: string) => {
+    await window.storage?.delete(key);
+  },
+};
+
+export interface AuthContextType {
   user: User | null;
-  loading: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
-  signup: (
-    username: string,
-    password: string
-  ) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    credential: string,
+    password: string,
+  ) => Promise<{ success: boolean; needsPin?: boolean; error?: string }>;
   logout: () => Promise<void>;
+  logoutEverywhere: () => Promise<void>;
+  loginWithPin: (
+    credential: string,
+    pin: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  setupPin: (pin: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (data: {
+    username: string;
+    email: string;
+    phone: string;
+    password: string;
+  }) => Promise<{ success: boolean; error?: string }>;
   isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Demo credentials for local development (works without Firebase)
-const DEMO_CREDENTIALS = {
-  username: "admin",
-  password: "admin123",
-  email: "admin@company.com",
-};
-
-// Check if Firebase is configured
-const isFirebaseConfigured = (): boolean => {
-  return (
-    import.meta.env.VITE_FIREBASE_API_KEY &&
-    import.meta.env.VITE_FIREBASE_API_KEY !== "your_api_key_here"
-  );
-};
-
-// Map username to email for Firebase
-const getUserEmail = (username: string): string => {
-  if (username === "admin") {
-    return "admin@company.com";
-  }
-  return `${username}@company.com`;
-};
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [useFirebase] = useState(isFirebaseConfigured());
 
+  // Load current user session on mount
   useEffect(() => {
-    if (useFirebase) {
-      // Firebase authentication
-      const unsubscribe = onAuthStateChanged(
-        auth,
-        (firebaseUser: FirebaseUser | null) => {
-          if (firebaseUser) {
-            setUser({
-              username: firebaseUser.email?.split("@")[0] || "user",
-              email: firebaseUser.email || "",
-              uid: firebaseUser.uid,
-            });
-          } else {
-            setUser(null);
-          }
-          setLoading(false);
-        }
-      );
-      return () => unsubscribe();
-    } else {
-      // Demo mode - check localStorage
-      const savedUser = localStorage.getItem("demo_user");
+    const loadSession = async () => {
+      const savedUser = await storage.getItem("current_user");
       if (savedUser) {
-        setUser(JSON.parse(savedUser));
+        try {
+          const userData = JSON.parse(savedUser);
+          setUser(userData);
+        } catch (error) {
+          console.error("Failed to parse user session:", error);
+        }
       }
       setLoading(false);
-    }
-  }, [useFirebase]);
+    };
+    loadSession();
+  }, []);
 
+  // Get all registered users
+  const getAllUsers = async (): Promise<StoredUser[]> => {
+    const usersJson = await storage.getItem("registered_users");
+    return usersJson ? JSON.parse(usersJson) : [];
+  };
+
+  // Save all users
+  const saveAllUsers = async (users: StoredUser[]): Promise<void> => {
+    await storage.setItem("registered_users", JSON.stringify(users));
+  };
+
+  // Find user by credential (username, email, or phone)
+  const findUserByCredential = async (
+    credential: string,
+  ): Promise<StoredUser | null> => {
+    const trimmed = credential.trim().toLowerCase();
+
+    // Check admin account first
+    if (
+      trimmed === DEMO_ADMIN.username.toLowerCase() ||
+      trimmed === DEMO_ADMIN.email.toLowerCase() ||
+      trimmed === DEMO_ADMIN.phone.toLowerCase()
+    ) {
+      return DEMO_ADMIN;
+    }
+
+    // Check registered users
+    const users = await getAllUsers();
+    return (
+      users.find(
+        (u) =>
+          u.username.toLowerCase() === trimmed ||
+          u.email.toLowerCase() === trimmed ||
+          u.phone.toLowerCase() === trimmed,
+      ) || null
+    );
+  };
+
+  // Regular login with password
   const login = async (
-    username: string,
-    password: string
-  ): Promise<boolean> => {
-    // Demo login mode (works without Firebase)
-    if (!useFirebase) {
-      // Check default admin credentials
-      if (
-        username === DEMO_CREDENTIALS.username &&
-        password === DEMO_CREDENTIALS.password
-      ) {
-        const userData: User = {
-          username: DEMO_CREDENTIALS.username,
-          email: DEMO_CREDENTIALS.email,
-          uid: "demo-user-admin",
-        };
-        setUser(userData);
-        localStorage.setItem("demo_user", JSON.stringify(userData));
-        return true;
-      }
+    credential: string,
+    password: string,
+  ): Promise<{ success: boolean; needsPin?: boolean; error?: string }> => {
+    const trimmedCredential = credential.trim();
+    const trimmedPassword = password.trim();
 
-      // Check registered demo users (with password stored - for demo only!)
-      const demoUsers = JSON.parse(localStorage.getItem("demo_users") || "[]");
-      const matchedUser = demoUsers.find(
-        (u: any) => u.username === username && u.password === password
-      );
-
-      if (matchedUser) {
-        const userData: User = {
-          username: matchedUser.username,
-          email: matchedUser.email,
-          uid: matchedUser.uid,
-        };
-        setUser(userData);
-        localStorage.setItem("demo_user", JSON.stringify(userData));
-        return true;
-      }
-
-      return false;
+    if (!trimmedCredential || !trimmedPassword) {
+      return { success: false, error: "Please enter all fields" };
     }
 
-    // Firebase login mode
-    try {
-      const email = getUserEmail(username);
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+    console.log("🔐 Login attempt:", trimmedCredential);
 
-      setUser({
-        username: username,
-        email: userCredential.user.email || email,
-        uid: userCredential.user.uid,
-      });
+    const foundUser = await findUserByCredential(trimmedCredential);
 
-      return true;
-    } catch (error: any) {
-      console.error("Login error:", error.message);
-      return false;
-    }
-  };
-  const logout = async (): Promise<void> => {
-    if (!useFirebase) {
-      // Demo logout
-      setUser(null);
-      localStorage.removeItem("demo_user");
-      return;
+    if (!foundUser) {
+      return { success: false, error: "User not found" };
     }
 
-    // Firebase logout
-    try {
-      await signOut(auth);
-      setUser(null);
-    } catch (error) {
-      console.error("Logout error:", error);
+    if (foundUser.password !== trimmedPassword) {
+      return { success: false, error: "Invalid password" };
     }
+
+    // Successful login
+    const userData: User = {
+      username: foundUser.username,
+      email: foundUser.email,
+      phone: foundUser.phone,
+      uid: foundUser.uid,
+      hasPin: !!foundUser.pin,
+    };
+
+    setUser(userData);
+    await storage.setItem("current_user", JSON.stringify(userData));
+
+    console.log("✅ Login successful");
+
+    return {
+      success: true,
+      needsPin: !foundUser.pin, // Suggest PIN setup if user doesn't have one
+    };
   };
 
-  const signup = async (
-    username: string,
-    password: string
+  // Login with PIN (fast login)
+  const loginWithPin = async (
+    credential: string,
+    pin: string,
   ): Promise<{ success: boolean; error?: string }> => {
-    // Validate username format (alphanumeric and underscores only)
+    const trimmedCredential = credential.trim();
+    const trimmedPin = pin.trim();
+
+    if (!trimmedCredential || !trimmedPin) {
+      return { success: false, error: "Please enter all fields" };
+    }
+
+    if (trimmedPin.length !== 4 && trimmedPin.length !== 6) {
+      return { success: false, error: "PIN must be 4 or 6 digits" };
+    }
+
+    console.log("🔢 PIN login attempt:", trimmedCredential);
+
+    const foundUser = await findUserByCredential(trimmedCredential);
+
+    if (!foundUser) {
+      return { success: false, error: "User not found" };
+    }
+
+    if (!foundUser.pin) {
+      return {
+        success: false,
+        error: "PIN not set up. Please login with password first.",
+      };
+    }
+
+    if (foundUser.pin !== trimmedPin) {
+      return { success: false, error: "Invalid PIN" };
+    }
+
+    // Successful PIN login
+    const userData: User = {
+      username: foundUser.username,
+      email: foundUser.email,
+      phone: foundUser.phone,
+      uid: foundUser.uid,
+      hasPin: true,
+    };
+
+    setUser(userData);
+    await storage.setItem("current_user", JSON.stringify(userData));
+
+    console.log("✅ PIN login successful");
+    return { success: true };
+  };
+
+  // Setup or update PIN
+  const setupPin = async (
+    pin: string,
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!user) {
+      return { success: false, error: "No user logged in" };
+    }
+
+    const trimmedPin = pin.trim();
+
+    // Validate PIN
+    if (!/^\d{4}$/.test(trimmedPin) && !/^\d{6}$/.test(trimmedPin)) {
+      return {
+        success: false,
+        error: "PIN must be 4 or 6 digits",
+      };
+    }
+
+    console.log("📌 Setting up PIN for:", user.username);
+
+    // Update user in storage
+    const users = await getAllUsers();
+    const userIndex = users.findIndex((u) => u.uid === user.uid);
+
+    if (userIndex !== -1) {
+      users[userIndex].pin = trimmedPin;
+      await saveAllUsers(users);
+    } else if (user.uid === DEMO_ADMIN.uid) {
+      // Can't modify demo admin in storage, but we can update session
+      console.log("Note: Demo admin PIN only valid for current session");
+    }
+
+    // Update current user session
+    const updatedUser = { ...user, hasPin: true };
+    setUser(updatedUser);
+    await storage.setItem("current_user", JSON.stringify(updatedUser));
+
+    console.log("✅ PIN setup successful");
+    return { success: true };
+  };
+
+  // Signup new user
+  const signup = async (data: {
+    username: string;
+    email: string;
+    phone: string;
+    password: string;
+  }): Promise<{ success: boolean; error?: string }> => {
+    const { username, email, phone, password } = data;
+
+    // Validate username
     const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
     if (!usernameRegex.test(username)) {
       return {
         success: false,
-        error:
-          "Username must be 3-20 characters (letters, numbers, underscore only)",
+        error: "Username: 3-20 chars (letters, numbers, underscore only)",
       };
     }
 
-    // Demo signup mode (works without Firebase)
-    if (!useFirebase) {
-      // In demo mode, check if user already exists
-      const existingUsers = JSON.parse(
-        localStorage.getItem("demo_users") || "[]"
-      );
-      if (existingUsers.find((u: any) => u.username === username)) {
-        return { success: false, error: "Username already exists" };
-      }
-
-      // Check if it's the default admin username
-      if (username.toLowerCase() === "admin") {
-        return { success: false, error: "Username already exists" };
-      }
-
-      // Check password strength for demo mode
-      if (password.length < 6) {
-        return {
-          success: false,
-          error: "Password should be at least 6 characters",
-        };
-      }
-
-      // Create new demo user (storing password for demo only - don't do this in production!)
-      const userData = {
-        username: username,
-        email: `${username}@daptech.com`,
-        uid: "demo-user-" + Date.now(),
-        password: password, // Only for demo mode
-      };
-
-      // Save to demo users list
-      existingUsers.push(userData);
-      localStorage.setItem("demo_users", JSON.stringify(existingUsers));
-
-      // Login the user
-      const userForState: User = {
-        username: userData.username,
-        email: userData.email,
-        uid: userData.uid,
-      };
-      setUser(userForState);
-      localStorage.setItem("demo_user", JSON.stringify(userForState));
-
-      return { success: true };
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return { success: false, error: "Invalid email format" };
     }
 
-    // Firebase signup mode
+    // Validate phone
+    const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
+    if (!phoneRegex.test(phone)) {
+      return { success: false, error: "Invalid phone number" };
+    }
+
+    // Validate password
+    if (password.length < 6) {
+      return {
+        success: false,
+        error: "Password must be at least 6 characters",
+      };
+    }
+
+    console.log("📝 Signup attempt:", username);
+
+    // Check if username is reserved
+    if (username.toLowerCase() === "admin") {
+      return { success: false, error: "Username already taken" };
+    }
+
+    // Get existing users
+    const existingUsers = await getAllUsers();
+
+    // Check for duplicates
+    if (
+      existingUsers.find(
+        (u) => u.username.toLowerCase() === username.toLowerCase(),
+      )
+    ) {
+      return { success: false, error: "Username already taken" };
+    }
+
+    if (
+      existingUsers.find((u) => u.email.toLowerCase() === email.toLowerCase())
+    ) {
+      return { success: false, error: "Email already registered" };
+    }
+
+    if (existingUsers.find((u) => u.phone === phone)) {
+      return { success: false, error: "Phone number already registered" };
+    }
+
+    // Create new user
+    const newUser: StoredUser = {
+      username,
+      email,
+      phone,
+      password,
+      uid: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    };
+
+    // Save user
+    existingUsers.push(newUser);
+    await saveAllUsers(existingUsers);
+
+    // Auto-login the user
+    const userData: User = {
+      username: newUser.username,
+      email: newUser.email,
+      phone: newUser.phone,
+      uid: newUser.uid,
+      hasPin: false,
+    };
+
+    setUser(userData);
+    await storage.setItem("current_user", JSON.stringify(userData));
+
+    console.log("✅ Signup successful");
+    return { success: true };
+  };
+
+  // Logout
+  const logout = async (): Promise<void> => {
+    setUser(null);
+    await storage.removeItem("current_user");
+    console.log("👋 Logged out");
+  };
+
+  // Logout from all devices
+  const logoutEverywhere = async () => {
     try {
-      const email = getUserEmail(username);
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-      setUser({
-        username: username,
-        email: userCredential.user.email || email,
-        uid: userCredential.user.uid,
+      // Call API to invalidate all sessions
+      await fetch("/api/auth/logout-everywhere", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
       });
 
-      return { success: true };
-    } catch (error: any) {
-      console.error("Signup error:", error.message);
-
-      let errorMessage = "Signup failed. Please try again.";
-      if (error.code === "auth/email-already-in-use") {
-        errorMessage = "Username already exists";
-      } else if (error.code === "auth/weak-password") {
-        errorMessage = "Password should be at least 6 characters";
-      } else if (error.code === "auth/invalid-email") {
-        errorMessage = "Invalid username format";
-      }
-
-      return { success: false, error: errorMessage };
+      // Clear local state
+      setUser(null);
+      localStorage.removeItem("authToken");
+      sessionStorage.clear();
+    } catch (error) {
+      console.error("Logout everywhere failed:", error);
     }
   };
 
@@ -267,10 +404,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
-        loading,
         login,
-        signup,
         logout,
+        logoutEverywhere,
+        loginWithPin,
+        setupPin,
+        signup,
         isAuthenticated: !!user,
       }}
     >
@@ -279,7 +418,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// add a stable function export for the hook to fix HMR fast refresh incompatibility
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

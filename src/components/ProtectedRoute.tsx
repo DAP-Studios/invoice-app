@@ -1,17 +1,11 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
 interface ProtectedRouteProps {
   children: React.ReactElement;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/app/login" replace />;
-  }
-
+  // Allow demo/guest access - don't redirect to login
+  // Users can still login if they want, but app works without login
   return children;
 };

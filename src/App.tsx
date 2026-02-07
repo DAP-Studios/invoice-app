@@ -6,6 +6,7 @@ import { Sidebar } from "./components/Sidebar";
 import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { CreateInvoice } from "./pages/CreateInvoice";
+import { EditInvoice } from "./pages/EditInvoice";
 import { InvoicesList } from "./pages/InvoicesList";
 import { Customers } from "./pages/PlaceholderPages";
 import { QuotationsList } from "./pages/QuotationsList";
@@ -41,6 +42,10 @@ function App() {
                           element={<CreateInvoice />}
                         />
                         <Route path="/invoices" element={<InvoicesList />} />
+                        <Route
+                          path="/edit-invoice/:id"
+                          element={<EditInvoice />}
+                        />
                         {/* Route for quotations now points to the real list */}
                         <Route
                           path="/quotation-list"

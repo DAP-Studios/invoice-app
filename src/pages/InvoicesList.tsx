@@ -4,6 +4,7 @@ import { useInvoices } from "../context/InvoiceContext";
 import { Button } from "../components/Button";
 import { Badge } from "../components/Badge";
 import { formatCurrency } from "../utils/invoiceUtils";
+import { exportInvoicesCSV, exportInvoiceItemsCSV } from "../utils/exportUtils";
 import "./InvoicesList.css";
 
 export const InvoicesList: React.FC = () => {
@@ -37,9 +38,24 @@ export const InvoicesList: React.FC = () => {
           <h1 className="aurix-page-title">All Invoices</h1>
           <p className="page-subtitle">Manage and view all your invoices</p>
         </div>
-        <Button onClick={() => navigate("/app/create-invoice")} variant="primary">
-          ＋ Create New Invoice
-        </Button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <Button
+            onClick={() => navigate("/app/create-invoice")}
+            variant="primary"
+          >
+            ＋ Create New Invoice
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() =>
+              exportInvoicesCSV(
+                invoices.filter((inv) => inv.type === "INVOICE")
+              )
+            }
+          >
+            📥 Export CSV
+          </Button>
+        </div>
       </div>
 
       <div className="search-filter-bar">
@@ -102,16 +118,28 @@ export const InvoicesList: React.FC = () => {
                         <Button
                           size="small"
                           variant="secondary"
-                          onClick={() => navigate(`/invoices/${invoice.id}`)}
+                          onClick={() =>
+                            navigate(`/app/edit-invoice/${invoice.id}`)
+                          }
+                          title="Edit invoice"
                         >
-                          View
+                          ✎ Edit
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="secondary"
+                          onClick={() => exportInvoiceItemsCSV(invoice)}
+                          title="Export items"
+                        >
+                          📥 Items
                         </Button>
                         <Button
                           size="small"
                           variant="secondary"
                           onClick={() => handleDelete(invoice.id)}
+                          title="Delete invoice"
                         >
-                          Delete
+                          🗑️ Delete
                         </Button>
                       </div>
                     </td>

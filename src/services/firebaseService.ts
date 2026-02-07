@@ -4,6 +4,7 @@ import {
   getDocs,
   getDoc,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   query,
@@ -22,7 +23,7 @@ const SETTINGS_DOC_ID = "company_settings";
 // ==================== INVOICES ====================
 
 export const saveInvoiceToFirebase = async (
-  invoice: Invoice
+  invoice: Invoice,
 ): Promise<string> => {
   try {
     const docRef = await addDoc(collection(db, INVOICES_COLLECTION), {
@@ -40,7 +41,7 @@ export const loadInvoicesFromFirebase = async (): Promise<Invoice[]> => {
   try {
     const q = query(
       collection(db, INVOICES_COLLECTION),
-      orderBy("timestamp", "desc")
+      orderBy("timestamp", "desc"),
     );
     const querySnapshot = await getDocs(q);
 
@@ -59,7 +60,7 @@ export const loadInvoicesFromFirebase = async (): Promise<Invoice[]> => {
 
 export const updateInvoiceInFirebase = async (
   id: number,
-  updates: Partial<Invoice>
+  updates: Partial<Invoice>,
 ): Promise<void> => {
   try {
     // Find document by invoice ID field
@@ -101,19 +102,12 @@ export const deleteInvoiceFromFirebase = async (id: number): Promise<void> => {
 // ==================== SETTINGS ====================
 
 export const saveSettingsToFirebase = async (
-  settings: CompanySettings
+  settings: CompanySettings,
 ): Promise<void> => {
   try {
     const settingsRef = doc(db, SETTINGS_COLLECTION, SETTINGS_DOC_ID);
-    await updateDoc(settingsRef, settings as Record<string, any>).catch(
-      async () => {
-        // If document doesn't exist, create it
-        await addDoc(collection(db, SETTINGS_COLLECTION), {
-          ...settings,
-          id: SETTINGS_DOC_ID,
-        });
-      }
-    );
+    // Use setDoc with merge to create or update
+    await setDoc(settingsRef, settings, { merge: true });
   } catch (error) {
     console.error("Error saving settings:", error);
     throw error;
@@ -146,7 +140,7 @@ export const loadSettingsFromFirebase =
 // ==================== LOGO (Storage) ====================
 
 export const saveLogoToFirebase = async (
-  logoDataUrl: string
+  logoDataUrl: string,
 ): Promise<string> => {
   try {
     const logoRef = ref(storage, "company/logo.png");

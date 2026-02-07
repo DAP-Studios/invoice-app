@@ -1,25 +1,641 @@
-/* Payments Page Styles */
+/* ============================================
+   Payments Page - Modern Responsive Design
+   ============================================ */
+
+:root {
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
+  --shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
 .payments-page {
-  padding: var(--spacing-large);
-  background-color: var(--background-color);
-  color: var(--text-color);
+  padding: clamp(1rem, 5vw, 2rem);
+  max-width: 1400px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease-out;
 }
 
-.payments-page h1 {
-  font-size: var(--font-size-large);
-  color: var(--primary-color);
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.payments-page section {
-  margin-bottom: var(--spacing-large);
+.payments-header {
+  margin-bottom: clamp(2rem, 6vw, 3rem);
+  animation: slideDown 0.6s ease-out;
 }
 
-.payments-page ul {
-  list-style: none;
-  padding: 0;
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.payments-page li {
-  padding: var(--spacing-small) 0;
-  border-bottom: 1px solid var(--color-border);
+.payments-header h1 {
+  font-size: clamp(1.75rem, 5vw, 2rem);
+  color: #222;
+  margin-bottom: 0.5rem;
+}
+
+.payments-header p {
+  color: #666;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+/* ============================================
+   Payment Summary Section
+   ============================================ */
+
+.payment-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: clamp(1rem, 4vw, 1.5rem);
+  margin-bottom: clamp(2rem, 6vw, 3rem);
+  animation: slideUp 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.payment-summary:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.payment-summary:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: clamp(1.25rem, 4vw, 1.75rem);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+  cursor: pointer;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.summary-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4caf50, #81c784);
+  transform: translateX(-100%);
+  transition: var(--transition);
+}
+
+.summary-card::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(76, 175, 80, 0.08), transparent);
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.summary-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-6px);
+  border-color: #e0e0e0;
+}
+
+.summary-card:hover::before {
+  transform: translateX(0);
+}
+
+.summary-card:hover::after {
+  opacity: 1;
+}
+
+.summary-card.pending {
+  border-color: #fff3e0;
+}
+
+.summary-card.pending::before {
+  background: linear-gradient(90deg, #ff9800, #ffb74d);
+}
+
+.summary-card.delayed {
+  border-color: #ffebee;
+}
+
+.summary-card.delayed::before {
+  background: linear-gradient(90deg, #f44336, #ef5350);
+}
+
+.summary-icon {
+  font-size: clamp(2rem, 6vw, 2.5rem);
+  margin-bottom: 0.75rem;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.summary-card.pending .summary-icon {
+  animation: none;
+}
+
+.summary-card.delayed .summary-icon {
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+.summary-card h3 {
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
+  color: #999;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.summary-card .amount {
+  font-size: clamp(1.75rem, 5vw, 2rem);
+  font-weight: 700;
+  color: #1a73e8;
+  margin: 0.5rem 0;
+  word-break: break-word;
+  transition: var(--transition);
+}
+
+.summary-card.pending .amount {
+  color: #ff9800;
+}
+
+.summary-card.delayed .amount {
+  color: #f44336;
+}
+
+.summary-card:hover .amount {
+  transform: scale(1.05);
+}
+
+.summary-count {
+  font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+  color: #999;
+  margin: 0;
+}
+
+/* ============================================
+   Payment Section
+   ============================================ */
+
+.payment-section {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: clamp(1rem, 4vw, 1.5rem);
+  margin-bottom: clamp(1.5rem, 5vw, 2rem);
+  box-shadow: var(--shadow-sm);
+  animation: slideUp 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+.payment-section:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.payment-section:nth-child(3) {
+  animation-delay: 0.25s;
+}
+.payment-section:nth-child(4) {
+  animation-delay: 0.35s;
+}
+
+.payment-section:hover {
+  box-shadow: var(--shadow-md);
+  border-color: #e0e0e0;
+}
+
+.payment-section h2 {
+  font-size: clamp(1.1rem, 3vw, 1.25rem);
+  font-weight: 600;
+  margin: 0 0 clamp(1rem, 3vw, 1.5rem) 0;
+  color: #222;
+  position: relative;
+  padding-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.payment-section h2::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, #1a73e8, transparent);
+  border-radius: 2px;
+}
+
+.payment-section h2::before {
+  content: attr(data-icon);
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+}
+
+/* ============================================
+   Payment Table
+   ============================================ */
+
+.payment-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: -1rem;
+  padding: 1rem;
+}
+
+.payment-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.payment-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.payment-table th {
+  background: linear-gradient(180deg, #f9f9f9, #f5f5f5);
+  padding: clamp(0.75rem, 2vw, 1rem);
+  text-align: left;
+  font-weight: 600;
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.payment-table td {
+  padding: clamp(0.75rem, 2vw, 1rem);
+  border-bottom: 1px solid #f0f0f0;
+  font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+}
+
+.payment-table tbody tr {
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.payment-table tbody tr:hover {
+  background: linear-gradient(90deg, #f9f9f9, #f5f5f5);
+  box-shadow: inset 3px 0 0 #1a73e8;
+}
+
+.payment-table tbody tr.overdue-row {
+  background-color: #fff5f5;
+}
+
+.payment-table tbody tr.overdue-row:hover {
+  background-color: #ffebee;
+}
+
+/* ============================================
+   Status Badges
+   ============================================ */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: clamp(0.35rem, 1vw, 0.5rem) clamp(0.75rem, 2vw, 1rem);
+  border-radius: 20px;
+  font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  transition: var(--transition);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.status-badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: none;
+}
+
+.status-badge.paid {
+  background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+  color: #2e7d32;
+  border-color: #81c784;
+}
+
+.status-badge.paid::before {
+  background: #4caf50;
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.5);
+}
+
+.status-badge.pending {
+  background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+  color: #e65100;
+  border-color: #ffb74d;
+}
+
+.status-badge.pending::before {
+  background: #ff9800;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 2px rgba(255, 152, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.8);
+  }
+}
+
+.status-badge.overdue {
+  background: linear-gradient(135deg, #ffebee, #ffcdd2);
+  color: #c62828;
+  border-color: #ef5350;
+}
+
+.status-badge.overdue::before {
+  background: #f44336;
+  animation: shake-dot 0.6s ease-in-out infinite;
+}
+
+@keyframes shake-dot {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.status-badge:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.empty-state {
+  text-align: center;
+  padding: clamp(2rem, 8vw, 3rem);
+  color: #999;
+}
+
+.empty-state p {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .payment-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .payment-table {
+    margin: -1rem -1rem 0 -1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .payments-page {
+    padding: 1rem;
+  }
+
+  .payment-summary {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .summary-card {
+    padding: 1rem;
+    min-height: 120px;
+  }
+
+  .summary-icon {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .summary-card .amount {
+    font-size: 1.5rem;
+  }
+
+  .summary-card h3 {
+    font-size: 0.75rem;
+  }
+
+  .payment-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+
+  .payment-section h2 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .payment-table {
+    margin: -1rem -1rem 0 -1rem;
+  }
+
+  .payment-table table {
+    font-size: 0.85rem;
+  }
+
+  .payment-table th,
+  .payment-table td {
+    padding: 0.6rem;
+  }
+
+  .status-badge {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .status-badge::before {
+    width: 7px;
+    height: 7px;
+  }
+
+  .payments-header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .payments-page {
+    padding: 0.75rem;
+  }
+
+  .payments-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .payments-header h1 {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .payments-header p {
+    font-size: 0.85rem;
+  }
+
+  .payment-summary {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .summary-card {
+    padding: 0.75rem;
+    min-height: 110px;
+  }
+
+  .summary-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .summary-card .amount {
+    font-size: 1.25rem;
+  }
+
+  .summary-card h3 {
+    font-size: 0.7rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .summary-count {
+    font-size: 0.7rem;
+  }
+
+  .payment-section {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: 8px;
+  }
+
+  .payment-section h2 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .payment-section h2::after {
+    display: none;
+  }
+
+  .payment-section h2::before {
+    font-size: 1.25rem;
+  }
+
+  .payment-table {
+    margin: -0.75rem -0.75rem 0 -0.75rem;
+    padding: 0.75rem;
+  }
+
+  .payment-table table {
+    font-size: 0.75rem;
+  }
+
+  .payment-table th,
+  .payment-table td {
+    padding: 0.4rem;
+  }
+
+  .payment-table th {
+    font-size: 0.7rem;
+  }
+
+  .status-badge {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .status-badge::before {
+    width: 6px;
+    height: 6px;
+  }
+
+  .empty-state {
+    padding: 1.5rem 1rem;
+  }
+
+  .empty-state p {
+    font-size: 0.85rem;
+  }
+
+  /* Horizontal scroll hint for table */
+  .payment-table::after {
+    content: "→ Swipe to see more";
+    display: block;
+    text-align: center;
+    color: #999;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+  }
 }

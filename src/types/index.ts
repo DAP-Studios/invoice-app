@@ -40,6 +40,7 @@ export interface CompanySettings {
   companyEmail: string;
   companyWebsite: string;
   companyLogo?: string;
+  gstNumber: string;
   bankName: string;
   bankAccount: string;
   bankIFSC: string;

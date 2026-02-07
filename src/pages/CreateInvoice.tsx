@@ -16,6 +16,7 @@ import {
   formatCurrency,
 } from "../utils/invoiceUtils";
 import { loadLogo } from "../utils/storage";
+import { exportInvoicePDF } from "../utils/exportUtils";
 import "./CreateInvoice.css";
 
 export const CreateInvoice: React.FC = () => {
@@ -58,24 +59,53 @@ export const CreateInvoice: React.FC = () => {
   const totalGST = cgstAmount + sgstAmount;
   const totalAmount = calculateGrandTotal(subtotal, cgstAmount, sgstAmount);
 
-  // Map PURCHASE ORDER and PERFORMA INVOICE to 'INVOICE' for numbering
   const invoiceNumber = generateInvoiceNumber(
     invoices,
     docType === "PURCHASE ORDER" || docType === "PERFORMA INVOICE"
       ? "INVOICE"
-      : docType
+      : docType,
   );
   const [logo, setLogo] = useState<string | null>(null);
+  const [savedInvoiceNo, setSavedInvoiceNo] = useState<string | null>(null);
+
+  // Default company info - will be overridden by settings if available
+  const defaultCompanyInfo = {
+    companyName: "YOUR COMPANY NAME",
+    companyAddress: "Company Address",
+    companyPhone: "-",
+    companyEmail: "-",
+    companyWebsite: "-",
+    gstNumber: "-",
+    bankName: "-",
+    bankAccount: "-",
+    bankIFSC: "-",
+    termsAndConditions: [
+      "Payment due within 30 days",
+      "Goods once sold will not be taken back",
+    ],
+  };
+
+  // Use settings from context, fallback to defaults
+  const companyInfo = settings || defaultCompanyInfo;
 
   useEffect(() => {
     const loadedLogo = loadLogo();
     setLogo(loadedLogo);
   }, []);
 
+  // Debug: Log settings to console
+  useEffect(() => {
+    console.log("=== Settings Debug Info ===");
+    console.log("Settings from context:", settings);
+    console.log("Company info being used:", companyInfo);
+    console.log("Settings loaded:", !!settings);
+    console.log("Company Name:", companyInfo.companyName);
+    console.log("==========================");
+  }, [settings]);
+
   const handleSave = () => {
     const invoice: Invoice = {
       id: Date.now(),
-      // Cast as 'INVOICE' for PURCHASE ORDER and PERFORMA INVOICE to match Invoice type
       type:
         docType === "PURCHASE ORDER" || docType === "PERFORMA INVOICE"
           ? "INVOICE"
@@ -103,12 +133,13 @@ export const CreateInvoice: React.FC = () => {
     };
 
     addInvoice(invoice);
+    setSavedInvoiceNo(invoiceNumber);
     alert(
       `✅ ${docType} saved!\nNumber: ${invoiceNumber}\nTotal: ${formatCurrency(
-        totalAmount
-      )}`
+        totalAmount,
+      )}`,
     );
-    navigate("/invoices");
+    navigate("/app/invoices");
   };
 
   const handleClear = () => {
@@ -117,14 +148,14 @@ export const CreateInvoice: React.FC = () => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleExportPDF = async () => {
+    await exportInvoicePDF(savedInvoiceNo || invoiceNumber);
   };
 
   return (
     <div className="create-invoice-page">
       <div className="action-buttons no-print">
-        <Button variant="secondary" onClick={() => navigate("/")}>
+        <Button variant="secondary" onClick={() => navigate("/app")}>
           ← Back to Dashboard
         </Button>
         <div style={{ display: "inline-block", margin: "0 8px" }}>
@@ -147,25 +178,38 @@ export const CreateInvoice: React.FC = () => {
             <option value="PERFORMA INVOICE">Performa Invoice</option>
           </select>
         </div>
-        <Button onClick={handleSave}>💾 Save {docType}</Button>
-        <Button variant="secondary" onClick={handleClear}>
-          🗑️ Clear Form
+        <Button onClick={handleSave}>Save {docType}</Button>
+        <Button variant="secondary" onClick={handleExportPDF}>
+          ⬇ Download PDF
         </Button>
-        <Button variant="secondary" onClick={handlePrint}>
-          🖨️ Print (A4)
+        <Button variant="secondary" onClick={handleClear}>
+          ✕ Clear Form
         </Button>
       </div>
 
       <div className="alert-box no-print">
-        <strong>🎯 Auto-Generated {docType} Number:</strong>{" "}
+        <strong>Auto-Generated {docType} Number:</strong>{" "}
         <span className="invoice-number-display">{invoiceNumber}</span>
         <p style={{ fontSize: "12px", marginTop: "5px", color: "#666" }}>
           Optimized for A4 paper (210mm × 297mm). Company details loaded from
-          Settings.
+          Settings.{" "}
+          {!settings && (
+            <strong style={{ color: "#d32f2f" }}>
+              No settings found - using defaults.{" "}
+            </strong>
+          )}
+          <Button
+            variant="secondary"
+            onClick={() => navigate("/app/settings")}
+            style={{ fontSize: "11px", padding: "4px 8px", marginLeft: "8px" }}
+          >
+            Edit Settings
+          </Button>
         </p>
       </div>
 
-      <div className="invoice-container">
+      <div id="invoice-content" className="invoice-container">
+        {/* Header with Logo and Company Info */}
         <div className="header-section">
           <div className="logo-section">
             {logo ? (
@@ -173,49 +217,54 @@ export const CreateInvoice: React.FC = () => {
             ) : (
               <div className="logo-placeholder">
                 <strong>
-                  No
+                  COMPANY
                   <br />
-                  Logo
+                  LOGO
                 </strong>
               </div>
             )}
           </div>
 
-          <div className="company-info">
-            <h1 className="aurix-page-title">
-              {settings?.companyName || "YOUR COMPANY NAME"}
-            </h1>
-            <p className="page-subtitle">
-              {settings?.companyAddress || "Set company details in Settings"}
-            </p>
-            <p>
-              <strong>Phone:</strong> {settings?.companyPhone || "-"} |{" "}
-              <strong>Email:</strong> {settings?.companyEmail || "-"}
-            </p>
-            <p>
-              <strong>Website:</strong> {settings?.companyWebsite || "-"}
-            </p>
+          {/* Company Info Grid */}
+          <div className="company-info-grid">
+            <div className="info-box">
+              <h3>{companyInfo.companyName || "YOUR COMPANY NAME"}</h3>
+            </div>
+            <div className="info-box">
+              <p>{companyInfo.companyWebsite || "www.aurix.com"}</p>
+            </div>
+            <div className="info-box">
+              <p>{companyInfo.companyAddress || "Company Address"}</p>
+            </div>
+            <div className="info-box">
+              <p>
+                Phone: {companyInfo.companyPhone || "-"} <br />
+                Email: {companyInfo.companyEmail || "-"} <br />
+                GSTIN: {companyInfo.gstNumber || "-"}
+              </p>
+            </div>
           </div>
         </div>
 
+        {/* Tax Invoice Title */}
         <div className="doc-header">
           <h2>{docType}</h2>
         </div>
 
+        {/* Invoice Details Grid */}
         <table className="info-table">
           <tbody>
             <tr>
-              <td style={{ width: "60%" }}>
-                <h3>Bill To / Ship To</h3>
+              <td style={{ width: "60%" }} rowSpan={2}>
+                <h3>Buyer Detail (Bill To)</h3>
                 <p>
-                  <strong>
-                    <input
-                      type="text"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      className="editable-input"
-                    />
-                  </strong>
+                  <input
+                    type="text"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="editable-input"
+                    style={{ fontWeight: "bold", width: "100%" }}
+                  />
                 </p>
                 <p>
                   <textarea
@@ -226,7 +275,7 @@ export const CreateInvoice: React.FC = () => {
                   />
                 </p>
                 <p>
-                  <strong>Contact:</strong>{" "}
+                  <strong>Contact Person:</strong>{" "}
                   <input
                     type="text"
                     value={customerContact}
@@ -235,7 +284,7 @@ export const CreateInvoice: React.FC = () => {
                   />
                 </p>
                 <p>
-                  <strong>Phone:</strong>{" "}
+                  <strong>Contact No:</strong>{" "}
                   <input
                     type="text"
                     value={customerPhone}
@@ -253,13 +302,13 @@ export const CreateInvoice: React.FC = () => {
                   />
                 </p>
               </td>
-              <td style={{ width: "40%" }}>
+              <td style={{ width: "40%" }} colSpan={2}>
                 <h3>{docType} Details</h3>
                 <p>
                   <strong>{docType} No:</strong> {invoiceNumber}
                 </p>
                 <p>
-                  <strong>Date:</strong>{" "}
+                  <strong>{docType} Date:</strong>{" "}
                   <input
                     type="text"
                     value={invoiceDate}
@@ -267,6 +316,10 @@ export const CreateInvoice: React.FC = () => {
                     className="editable-input"
                   />
                 </p>
+              </td>
+            </tr>
+            <tr>
+              <td colSpan={2}>
                 <p>
                   <strong>Due Date:</strong>{" "}
                   <input
@@ -277,17 +330,27 @@ export const CreateInvoice: React.FC = () => {
                   />
                 </p>
                 <p>
-                  <strong>Purchase Order Number:</strong>{" "}
+                  <strong>PO No:</strong>{" "}
                   <input
                     type="text"
                     value={poNumber}
                     onChange={(e) => setPoNumber(e.target.value)}
                     className="editable-input"
-                    placeholder="-"
+                    placeholder="N/A"
                   />
                 </p>
               </td>
             </tr>
+            {/* <tr>
+              <td>
+                <h3>Delivery Address (Ship To)</h3>
+                <p style={{ fontWeight: "bold" }}>{customerName}</p>
+                <p>{customerAddress}</p>
+                <p>Contact: {customerContact}</p>
+                <p>Phone: {customerPhone}</p>
+              </td>
+              <td colSpan={2}></td>
+            </tr> */}
           </tbody>
         </table>
 
@@ -306,26 +369,48 @@ export const CreateInvoice: React.FC = () => {
         />
 
         <div className="amount-words">
-          <strong>Amount in Words:</strong>{" "}
+          <strong>Total Amount in Words:</strong>{" "}
           {numberToWords(Math.round(totalAmount))}
         </div>
 
         <div className="footer-section">
           <div className="bank-details">
-            <strong>BANK DETAILS:</strong> Bank: {settings?.bankName || "-"} |
-            Acc: {settings?.bankAccount || "-"} | IFSC:{" "}
-            {settings?.bankIFSC || "-"}
+            <strong>BANK DETAILS:</strong>
+            <p style={{ margin: "4px 0" }}>
+              Bank Name: {companyInfo.bankName || "-"} | Bank A/C:{" "}
+              {companyInfo.bankAccount || "-"} | Bank IFSC:{" "}
+              {companyInfo.bankIFSC || "-"}
+            </p>
           </div>
 
           <div className="terms">
             <strong>Terms & Conditions:</strong>
             <ol>
-              {settings?.termsAndConditions?.map((term, index) => (
-                <li key={index}>{term}</li>
-              )) || (
+              {companyInfo.termsAndConditions &&
+              companyInfo.termsAndConditions.length > 0 ? (
+                companyInfo.termsAndConditions.map((term, index) => (
+                  <li key={index}>{term}</li>
+                ))
+              ) : (
                 <>
-                  <li>Payment due within 30 days</li>
-                  <li>Goods once sold will not be taken back</li>
+                  <li>
+                    Goods once sold will not be taken back unless specifically
+                    agreed by us.
+                  </li>
+                  <li>
+                    Goods returned should be accompanied by valid invoice for
+                    acceptance.
+                  </li>
+                  <li>
+                    We will not accept any claim for compensation in case for
+                    any reason you are not able to avail cenvat Credit of this
+                    invoice.
+                  </li>
+                  <li>
+                    Acceptance of material will qualify us for full payment of
+                    this invoice.
+                  </li>
+                  <li>Subject to jurisdiction.</li>
                 </>
               )}
             </ol>
@@ -334,12 +419,28 @@ export const CreateInvoice: React.FC = () => {
           <div className="signature">
             <p>
               <strong>
-                For {settings?.companyName || "YOUR COMPANY NAME"}
+                For {companyInfo.companyName || "YOUR COMPANY NAME"}
               </strong>
             </p>
             <div className="signature-line"></div>
-            <p style={{ marginTop: "3px" }}>Authorized Signatory</p>
+            <p style={{ marginTop: "3px" }}>AUTHORISED SIGNATORY</p>
           </div>
+        </div>
+
+        <div
+          className="no-print"
+          style={{
+            marginTop: "10px",
+            padding: "6px",
+            background: "#f0f0f0",
+            borderRadius: "4px",
+            textAlign: "center",
+            fontSize: "9px",
+            color: "#666",
+          }}
+        >
+          This is computer generated {docType.toLowerCase()} no signature
+          required.
         </div>
       </div>
     </div>

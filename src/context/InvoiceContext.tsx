@@ -37,6 +37,7 @@ const defaultSettings: CompanySettings = {
   companyPhone: "-",
   companyEmail: "-",
   companyWebsite: "-",
+  gstNumber: "-",
   bankName: "-",
   bankAccount: "-",
   bankIFSC: "-",
@@ -68,6 +69,10 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({
     const loadData = async () => {
       try {
         setLoading(true);
+        console.log(
+          "[InvoiceContext] Loading data... useFirebase:",
+          useFirebase,
+        );
 
         if (useFirebase) {
           // Load from Firebase
@@ -75,20 +80,29 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({
             loadInvoicesFromFirebase(),
             loadSettingsFromFirebase(),
           ]);
+          console.log(
+            "[InvoiceContext] Loaded from Firebase - Settings:",
+            loadedSettings,
+          );
           setInvoices(loadedInvoices);
           setSettings(loadedSettings || defaultSettings);
         } else {
           // Load from localStorage (demo mode)
           const loadedInvoices = loadInvoices();
           const loadedSettings = loadSettings();
+          console.log(
+            "[InvoiceContext] Loaded from localStorage - Settings:",
+            loadedSettings,
+          );
           setInvoices(loadedInvoices);
           setSettings(loadedSettings || defaultSettings);
         }
       } catch (error) {
-        console.error("Error loading data:", error);
+        console.error("[InvoiceContext] Error loading data:", error);
         setSettings(defaultSettings);
       } finally {
         setLoading(false);
+        console.log("[InvoiceContext] Data loading complete");
       }
     };
 
@@ -119,12 +133,12 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({
       } else {
         // Demo mode - use localStorage
         const updatedInvoices = invoices.map((inv) =>
-          inv.id === id ? { ...inv, ...updates } : inv
+          inv.id === id ? { ...inv, ...updates } : inv,
         );
         saveInvoices(updatedInvoices);
       }
       const updatedInvoices = invoices.map((inv) =>
-        inv.id === id ? { ...inv, ...updates } : inv
+        inv.id === id ? { ...inv, ...updates } : inv,
       );
       setInvoices(updatedInvoices);
     } catch (error) {
@@ -152,15 +166,23 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({
 
   const updateSettings = async (newSettings: CompanySettings) => {
     try {
+      console.log("[InvoiceContext] updateSettings called with:", newSettings);
+      console.log("[InvoiceContext] Using Firebase:", useFirebase);
+
       if (useFirebase) {
+        console.log("[InvoiceContext] Saving to Firebase...");
         await saveSettingsToFirebase(newSettings);
+        console.log("[InvoiceContext] Saved to Firebase successfully");
       } else {
-        // Demo mode - use localStorage
+        console.log("[InvoiceContext] Saving to localStorage...");
         saveSettings(newSettings);
+        console.log("[InvoiceContext] Saved to localStorage successfully");
       }
+
       setSettings(newSettings);
+      console.log("[InvoiceContext] Settings state updated");
     } catch (error) {
-      console.error("Error updating settings:", error);
+      console.error("[InvoiceContext] Error updating settings:", error);
       throw error;
     }
   };

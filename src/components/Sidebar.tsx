@@ -63,7 +63,7 @@ export const Sidebar: React.FC = () => {
   const handleLogout = async () => {
     if (window.confirm("Are you sure you want to logout?")) {
       await logout();
-      navigate("/login");
+      navigate("/app/login");
     }
   };
 
@@ -102,16 +102,6 @@ export const Sidebar: React.FC = () => {
               <img src={aurixLogoShort} alt="Aurix" />
             </div>
           </div>
-
-          {!isMobile && (
-            <button
-              className="sidebar-collapse-btn"
-              onClick={toggleSidebar}
-              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              {isCollapsed ? "›" : "‹"}
-            </button>
-          )}
 
           {isMobile && (
             <button

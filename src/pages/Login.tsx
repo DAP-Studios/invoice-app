@@ -6,14 +6,14 @@ import "./Login.css";
 
 // Check if Firebase is configured
 const isFirebaseConfigured = (): boolean => {
-  return (
-    import.meta.env.VITE_FIREBASE_API_KEY &&
-    import.meta.env.VITE_FIREBASE_API_KEY !== "your-firebase-api-key-here"
-  );
+  const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+  return !!(apiKey && apiKey.trim() && apiKey.length > 10);
 };
 
 export const Login: React.FC = () => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,13 +26,13 @@ export const Login: React.FC = () => {
     e.preventDefault();
     setError("");
 
-    if (!email || !password) {
-      setError("Please enter both email and password");
-      return;
-    }
-
     if (isSignup) {
       // Signup validation
+      if (!username || !email || !phone || !password) {
+        setError("Please fill in all fields");
+        return;
+      }
+
       if (password.length < 6) {
         setError("Password should be at least 6 characters");
         return;
@@ -44,7 +44,12 @@ export const Login: React.FC = () => {
 
       setLoading(true);
       try {
-        const result = await signup(email, password);
+        const result = await signup({
+          username,
+          email,
+          phone,
+          password,
+        });
         if (result.success) {
           navigate("/app");
         } else {
@@ -56,16 +61,25 @@ export const Login: React.FC = () => {
         setLoading(false);
       }
     } else {
-      // Login
+      // Login with any credential (username, email, or phone)
+      if (!email || !password) {
+        setError("Please enter credentials and password");
+        return;
+      }
+
       setLoading(true);
       try {
+        console.log("Login attempt with:", { credential: email.trim() });
         const success = await login(email, password);
         if (success) {
+          console.log("✅ Login successful, navigating to /app");
           navigate("/app");
         } else {
-          setError("Invalid email or password");
+          console.log("❌ Login failed - invalid credentials");
+          setError("❌ Invalid credentials. Try: admin / admin123");
         }
       } catch (err) {
+        console.error("Login exception:", err);
         setError("Login failed. Please try again.");
       } finally {
         setLoading(false);
@@ -86,42 +100,91 @@ export const Login: React.FC = () => {
         <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="error-message">⚠️ {error}</div>}
 
-          <div className="form-group">
-            <label htmlFor="username">Username</label>
-            <input
-              type="text"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              autoFocus
-            />
-          </div>
+          {isSignup ? (
+            <>
+              {/* Signup Form Fields */}
+              <div className="form-group">
+                <label htmlFor="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Choose a username (3-20 chars)"
+                  autoFocus
+                />
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={
-                isSignup ? "At least 6 characters" : "Enter your password"
-              }
-            />
-          </div>
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                />
+              </div>
 
-          {isSignup && (
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Re-enter your password"
-              />
-            </div>
+              <div className="form-group">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+1 (555) 000-0000"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="At least 6 characters"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="confirmPassword">Confirm Password</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter your password"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Login Form Fields */}
+              <div className="form-group">
+                <label htmlFor="credential">Username, Email, or Phone</label>
+                <input
+                  type="text"
+                  id="credential"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin (or your email or phone)"
+                  autoFocus
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="admin123"
+                />
+              </div>
+            </>
           )}
 
           <Button type="submit" style={{ width: "100%" }} disabled={loading}>
@@ -141,6 +204,10 @@ export const Login: React.FC = () => {
             onClick={() => {
               setIsSignup(!isSignup);
               setError("");
+              setUsername("");
+              setEmail("");
+              setPhone("");
+              setPassword("");
               setConfirmPassword("");
             }}
             type="button"
@@ -151,18 +218,85 @@ export const Login: React.FC = () => {
           </button>
 
           <div className="demo-credentials">
-            <strong>
-              {isFirebaseConfigured()
-                ? "Demo Credentials:"
-                : "🎮 Demo Mode Active"}
+            <strong
+              style={{
+                color: "#1a73e8",
+                display: "block",
+                marginBottom: "8px",
+              }}
+            >
+              🎮 Demo Credentials:
             </strong>
-            <p>
-              👤 Username: <code>admin</code> | Password: <code>admin123</code>
-            </p>
+            <div
+              style={{
+                background: "#f0f7ff",
+                padding: "12px",
+                borderRadius: "6px",
+                border: "2px solid #1a73e8",
+                marginBottom: "12px",
+              }}
+            >
+              <p style={{ margin: "4px 0", fontSize: "14px" }}>
+                <strong>Username:</strong>{" "}
+                <code
+                  style={{
+                    background: "#fff",
+                    padding: "3px 8px",
+                    borderRadius: "3px",
+                    fontWeight: "bold",
+                    color: "#1a73e8",
+                  }}
+                >
+                  admin
+                </code>
+              </p>
+              <p style={{ margin: "6px 0", fontSize: "14px" }}>
+                <strong>Password:</strong>{" "}
+                <code
+                  style={{
+                    background: "#fff",
+                    padding: "3px 8px",
+                    borderRadius: "3px",
+                    fontWeight: "bold",
+                    color: "#1a73e8",
+                  }}
+                >
+                  admin123
+                </code>
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("admin");
+                  setPassword("admin123");
+                  setError("");
+                }}
+                style={{
+                  marginTop: "8px",
+                  padding: "6px 12px",
+                  background: "#1a73e8",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  width: "100%",
+                }}
+              >
+                🔐 Auto-Fill Credentials
+              </button>
+            </div>
             {!isFirebaseConfigured() && (
-              <p style={{ fontSize: "11px", color: "#666", marginTop: "8px" }}>
-                ℹ️ Running in demo mode (localStorage). Configure Firebase in
-                .env for cloud storage.
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: "#666",
+                  marginTop: "8px",
+                  textAlign: "center",
+                }}
+              >
+                ✓ Demo Mode Active (No Firebase needed)
               </p>
             )}
           </div>
