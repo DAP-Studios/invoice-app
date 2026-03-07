@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Portfolio.css";
 import daplogo from "../assets/daplogo.png";
+import ShaderBackground from "../components/ShaderBackground";
 
 interface GitHubRepo {
   id: number;
@@ -170,7 +171,7 @@ export const Portfolio: React.FC = () => {
       <div ref={cursorRef} className="custom-cursor"></div>
       <div ref={cursorDotRef} className="custom-cursor-dot"></div>
 
-      <div className="bg-layer"></div>
+      <ShaderBackground className="shader-background" />
       <div className="grid-overlay"></div>
       <div className="ambient-glow" id="glow"></div>
 
